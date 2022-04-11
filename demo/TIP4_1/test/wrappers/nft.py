@@ -1,15 +1,15 @@
-from re import L
 import tonos_ts4.ts4 as ts4
 from tonclient.types import CallSet
-from demo.TIP4_1.test.utils import ZERO_ADDRESS
+from utils import ZERO_ADDRESS
 
 from wrappers.setcode import Setcode
 from config import *
 
+ts4.init(BUILD_ARTIFACTS_PATH, verbose = True)
 
 class Nft(ts4.BaseContract):
 
-    def __init__(self, address: ts4.Address, nft_owner: Setcode):
+    def __init__(self, address: ts4.Address, nft_owner: Setcode = Setcode()):
         super().__init__('Nft', {}, nickname="Nft", address=address)
         self.nft_owner = nft_owner
 
@@ -42,38 +42,40 @@ class Nft(ts4.BaseContract):
         self,
         new_owner: ts4.Address,
         send_gas_to: ts4.Address = ZERO_ADDRESS,
-        callbacks: dict = dict(),
+        callbacks: dict = {},
         change_value: int = 0,
-        expect_ec: int = 0
+        expect_ec: int = 0,
+        dispatch: bool = True
     ):
         call_set = CallSet('changeOwner', input={
-            'newOwner': new_owner,
-            'sendGasTo': send_gas_to,
+            'newOwner': new_owner.str(),
+            'sendGasTo': send_gas_to.str(),
             'callbacks': callbacks
         })
-        self.owner.send_call_set(self, value=change_value, call_set=call_set, expect_ec=expect_ec)
+        self.nft_owner.send_call_set(self, value=change_value, call_set=call_set, expect_ec=expect_ec, dispatch=dispatch)
 
     def change_manager(
         self,
         new_manager: ts4.Address,
         send_gas_to: ts4.Address = ZERO_ADDRESS,
-        callbacks: dict = dict(),
+        callbacks: dict = {},
         change_value: int = 0,
-        expect_ec: int = 0
+        expect_ec: int = 0,
+        dispatch: bool = True
     ):
         call_set = CallSet('changeManager', input={
-            'newManager': new_manager,
-            'sendGasTo': send_gas_to,
+            'newManager': new_manager.str(),
+            'sendGasTo': send_gas_to.str(),
             'callbacks': callbacks
         })
-        self.owner.send_call_set(self, value=change_value, call_set=call_set, expect_ec=expect_ec)
+        self.nft_owner.send_call_set(self, value=change_value, call_set=call_set, expect_ec=expect_ec, dispatch=dispatch)
 
     def check_state(
         self,
         expected_nft_owner: ts4.Address,
         expected_nft_manager: ts4.Address,
         expected_collection: ts4.Address,
-        expected_nft_balance: int = REMAIN_ON_NFT_VALUE
+        expected_nft_balance: int = REMAIN_ON_NFT_VALUE,
     ): 
         assert self.owner == expected_nft_owner, f'Wrong token owner exp: {self.owner}, given: {expected_nft_owner}'
         assert self.manager == expected_nft_manager, f'Wrong token manager exp: {self.manager}, given: {expected_nft_manager}'
