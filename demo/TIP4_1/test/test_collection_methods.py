@@ -36,12 +36,13 @@ class TestCollection(unittest.TestCase):
         self.assertEqual(collection.total_supply, 0, 'Wrong total supply')
         self.assertEqual(setcode_initial_balance, ts4.get_balance(setcode_wallet.address), 'Wrong balance')
 
-
     def test_mint(self):
         setcode_wallet = Setcode()
         setcode_initial_balance = ts4.get_balance(setcode_wallet.address)
         collection = Collection(owner=setcode_wallet)   
         collection.mint_nft(nft_owner=setcode_wallet, mint_value=MINT_NFT_VALUE)
+        event = ts4.pop_event()
+        self.assertTrue(event.is_event('NftCreated', src = collection.address, dst = ts4.Address(None)))
         self.assertEqual(collection.total_supply, 1, 'Wrong total supply')
         self.assertEqual(setcode_initial_balance - REMAIN_ON_NFT_VALUE, ts4.get_balance(setcode_wallet.address), 'Wrong balance')
         nft = collection.nft_of(setcode_wallet, 0)
