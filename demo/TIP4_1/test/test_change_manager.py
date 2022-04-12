@@ -42,6 +42,25 @@ class TestNftChangeManager(unittest.TestCase):
             REMAIN_ON_NFT_VALUE + CHANGE_MANAGER_VALUE
         )
 
+    def test_with_wrong_owner(self):
+        old_owner = self.nft.owner
+        old_manager = self.nft.manager
+        wrong_owner = Setcode()
+        self.nft.nft_owner = wrong_owner
+
+        self.nft.change_manager(
+            new_manager=random_address(), 
+            change_value=CHANGE_MANAGER_VALUE,
+            expect_ec=103
+        )
+
+        self.nft.check_state(
+            old_owner,
+            old_manager,
+            self.collection.address,
+            REMAIN_ON_NFT_VALUE
+        )
+
     def test_with_send_gas_to(self):
         old_nft_manager = self.nft_owner
         new_nft_manager = Setcode()
