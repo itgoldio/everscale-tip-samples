@@ -9,7 +9,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "itgold-contracts": "git+https://github.com/nikitaghost/everscale-tip.git",
+    "@itgold/everscale-tip": "^0.8.0",
     "locklift": "git+https://github.com/broxus/ton-locklift.git"
   }
 }
