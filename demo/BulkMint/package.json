@@ -1,0 +1,16 @@
+{
+  "name": "bulkmint",
+  "version": "1.0.0",
+  "description": "BulkMint demo",
+  "scripts": {
+    "compile": "locklift build --config locklift.config.js",
+    "deploy_localhost": "locklift run --config locklift.config.js --network local --script scripts/1-deploy-collection.js",
+    "dev": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@itgold/everscale-tip": "^0.8.0",
+    "locklift": "git+https://github.com/broxus/ton-locklift.git"
+  }
+}
