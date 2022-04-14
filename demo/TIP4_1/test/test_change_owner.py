@@ -174,3 +174,54 @@ class TestNftChangeOwner(unittest.TestCase):
             self.collection.address,
             REMAIN_ON_NFT_VALUE + CHANGE_OWNER_WITH_CALLBACKS_VALUE - 2 * SEND_CALLBACK_VALUE
         )
+
+    def test_with_callbacks_and_wrong_value(self):
+        old_nft_owner = self.nft_owner
+        new_nft_owner = Setcode()
+
+        callbacks = {
+            random_address().str(): {
+                "value": SEND_CALLBACK_VALUE, 
+                "payload": "te6ccgEBAQEAMAAAW1t00puAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACLA="
+            },
+            random_address().str(): {
+                "value": SEND_CALLBACK_VALUE, 
+                "payload": "te6ccgEBAQEAMAAAW1t00puAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACLA="
+            },
+            random_address().str(): {
+                "value": SEND_CALLBACK_VALUE, 
+                "payload": "te6ccgEBAQEAMAAAW1t00puAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACLA="
+            },
+            random_address().str(): {
+                "value": SEND_CALLBACK_VALUE, 
+                "payload": "te6ccgEBAQEAMAAAW1t00puAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACLA="
+            },
+            random_address().str(): {
+                "value": SEND_CALLBACK_VALUE, 
+                "payload": "te6ccgEBAQEAMAAAW1t00puAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACLA="
+            },
+            random_address().str(): {
+                "value": SEND_CALLBACK_VALUE, 
+                "payload": "te6ccgEBAQEAMAAAW1t00puAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACLA="
+            }
+        }
+
+        self.nft.change_owner(
+            new_owner=new_nft_owner.address, 
+            change_value=CHANGE_OWNER_WITH_WRONG_CALLBACKS_VALUE, 
+            callbacks=callbacks,
+            dispatch=False
+        )
+
+        try: 
+            ts4.dispatch_one_message()
+        except Exception:
+            self.nft.check_state(
+                old_nft_owner.address,
+                old_nft_owner.address,
+                self.collection.address,
+                REMAIN_ON_NFT_VALUE
+            )
+
+        # if transaction is failed - events not be emited
+        self.assertTrue(len(ts4.g.EVENTS) == 0)
