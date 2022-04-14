@@ -14,10 +14,19 @@
 			]
 		},
 		{
-			"name": "mintNft",
+			"name": "bulkMintNft",
 			"inputs": [
 				{"name":"quantity","type":"uint256"},
 				{"name":"json","type":"string[]"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "mintNft",
+			"inputs": [
+				{"name":"json","type":"string"},
+				{"name":"sendGasTo","type":"address"}
 			],
 			"outputs": [
 			]

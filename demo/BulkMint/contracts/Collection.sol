@@ -12,6 +12,7 @@ import './Nft.sol';
 library CustomCollectionErrors {
     uint16 constant value_is_less_than_required = 103;
     uint16 constant wrong_bulk_mint_parameters = 104;
+    uint16 constant sender_is_not_collection = 105;
 }
 
 contract Collection is TIP4_1Collection, TIP4_2Collection, OwnableExternal {
@@ -34,21 +35,24 @@ contract Collection is TIP4_1Collection, TIP4_2Collection, OwnableExternal {
         tvm.accept();
     }
 
-    function mintNft(
+    function bulkMintNft(
         uint256 quantity,
         string[] json
-    ) external virtual {
+    ) external view virtual {
         require(msg.value >= (_remainOnNft + 0.2 ton) * quantity, CustomCollectionErrors.value_is_less_than_required);
         require(json.length == quantity, CustomCollectionErrors.wrong_bulk_mint_parameters);
         tvm.rawReserve(0, 4);
         for(uint256 i = 0; i < quantity; i++){
-            _mintNft(json[i]);
+            Collection(address(this)).mintNft{value:_remainOnNft + 0.1 ton, flag: 0}(json[i], msg.sender);
         }
     }
 
-    function _mintNft(
-        string json
-    ) internal virtual {
+    function mintNft(
+        string json,
+        address sendGasTo
+    ) external virtual {
+        require(msg.sender == address(this), CustomCollectionErrors.sender_is_not_collection);
+        tvm.rawReserve(0, 4);
         uint256 id = uint256(_totalSupply);
         _totalSupply++;
 
@@ -56,11 +60,11 @@ contract Collection is TIP4_1Collection, TIP4_2Collection, OwnableExternal {
         TvmCell stateNft = _buildNftState(codeNft, id);
         address nftAddr = new Nft{
             stateInit: stateNft,
-            value: _remainOnNft + 0.1 ton,
-            flag: 1
+            value: 0,
+            flag: 128
         }(
             msg.sender,
-            msg.sender,
+            sendGasTo,
             _remainOnNft,
             json
         ); 
