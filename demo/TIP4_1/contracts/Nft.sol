@@ -19,8 +19,6 @@ contract Nft is TIP4_1Nft {
         owner,
         sendGasTo,
         remainOnNft
-    ) public {
-        tvm.accept();
-    }
+    ) public {}
 
 }
