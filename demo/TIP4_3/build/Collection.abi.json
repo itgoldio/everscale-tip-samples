@@ -32,7 +32,6 @@
 		{
 			"name": "deployIndexBasis",
 			"inputs": [
-				{"name":"answerId","type":"uint32"}
 			],
 			"outputs": [
 				{"name":"indexBasis","type":"address"}

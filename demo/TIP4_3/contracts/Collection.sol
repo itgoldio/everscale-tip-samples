@@ -10,6 +10,11 @@ import './Nft.sol';
 
 contract Collection is TIP4_3Collection {
 
+    /**
+    * Errors
+    **/
+    uint8 constant value_is_less_than_required = 102;
+
     /// _remainOnNft - the number of crystals that will remain after the entire mint 
     /// process is completed on the Nft contract
     uint128 _remainOnNft = 0.3 ton;
@@ -26,11 +31,10 @@ contract Collection is TIP4_3Collection {
         codeIndexBasis,
         ownerPubkey
     ) public {
-        tvm.accept();
     }
 
     function mintNft() external virtual {
-        require(msg.value > _remainOnNft + 0.1 ton, CollectionErrors.value_is_less_than_required);
+        require(msg.value > _remainOnNft + 0.1 ton, value_is_less_than_required);
         tvm.rawReserve(0, 4);
 
         uint256 id = uint256(_totalSupply);
