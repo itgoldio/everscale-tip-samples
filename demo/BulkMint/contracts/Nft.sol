@@ -21,8 +21,6 @@ contract Nft is TIP4_1Nft, TIP4_2Nft {
         remainOnNft
     ) TIP4_2Nft (
         json
-    ) public {
-        tvm.accept();
-    }
+    ) public {}
 
 }

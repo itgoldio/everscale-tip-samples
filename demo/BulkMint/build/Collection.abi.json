@@ -16,8 +16,7 @@
 		{
 			"name": "bulkMintNft",
 			"inputs": [
-				{"name":"quantity","type":"uint256"},
-				{"name":"json","type":"string[]"}
+				{"name":"jsons","type":"string[]"}
 			],
 			"outputs": [
 			]

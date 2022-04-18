@@ -11,8 +11,7 @@ import './Nft.sol';
 
 library CustomCollectionErrors {
     uint16 constant value_is_less_than_required = 103;
-    uint16 constant wrong_bulk_mint_parameters = 104;
-    uint16 constant sender_is_not_collection = 105;
+    uint16 constant sender_is_not_collection = 104;
 }
 
 contract Collection is TIP4_1Collection, TIP4_2Collection, OwnableExternal {
@@ -35,15 +34,11 @@ contract Collection is TIP4_1Collection, TIP4_2Collection, OwnableExternal {
         tvm.accept();
     }
 
-    function bulkMintNft(
-        uint256 quantity,
-        string[] json
-    ) external view virtual {
-        require(msg.value >= (_remainOnNft + 0.2 ton) * quantity, CustomCollectionErrors.value_is_less_than_required);
-        require(json.length == quantity, CustomCollectionErrors.wrong_bulk_mint_parameters);
+    function bulkMintNft(string[] jsons) external view virtual {
+        require(msg.value >= (_remainOnNft + 0.2 ton) * jsons.length, CustomCollectionErrors.value_is_less_than_required);
         tvm.rawReserve(0, 4);
-        for(uint256 i = 0; i < quantity; i++){
-            Collection(address(this)).mintNft{value:_remainOnNft + 0.1 ton, flag: 0}(msg.sender, json[i]);
+        for(string json : jsons){
+            Collection(address(this)).mintNft{value:_remainOnNft + 0.1 ton, flag: 0}(msg.sender, json);
         }
     }
 
