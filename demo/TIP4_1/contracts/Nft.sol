@@ -1,5 +1,3 @@
-// ItGold.io Contracts (v1.0.0) 
-
 pragma ton-solidity = 0.58.1;
 
 pragma AbiHeader expire;
@@ -19,8 +17,6 @@ contract Nft is TIP4_1Nft {
         owner,
         sendGasTo,
         remainOnNft
-    ) public {
-        tvm.accept();
-    }
+    ) public {}
 
 }
