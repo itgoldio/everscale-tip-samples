@@ -30,17 +30,18 @@
 			]
 		},
 		{
-			"name": "deployIndexBasis",
+			"name": "owner",
 			"inputs": [
+				{"name":"answerId","type":"uint32"}
 			],
 			"outputs": [
-				{"name":"indexBasis","type":"address"}
+				{"name":"pubkey","type":"uint256"}
 			]
 		},
 		{
-			"name": "setIndexBasisCode",
+			"name": "transferOwnership",
 			"inputs": [
-				{"name":"codeIndexBasis","type":"cell"}
+				{"name":"newOwner","type":"uint256"}
 			],
 			"outputs": [
 			]
@@ -88,23 +89,6 @@
 			],
 			"outputs": [
 				{"name":"hash","type":"uint256"}
-			]
-		},
-		{
-			"name": "owner",
-			"inputs": [
-				{"name":"answerId","type":"uint32"}
-			],
-			"outputs": [
-				{"name":"pubkey","type":"uint256"}
-			]
-		},
-		{
-			"name": "transferOwnership",
-			"inputs": [
-				{"name":"newOwner","type":"uint256"}
-			],
-			"outputs": [
 			]
 		},
 		{
@@ -198,12 +182,12 @@
 		{"name":"_supportedInterfaces","type":"optional(cell)"},
 		{"name":"_codeNft","type":"cell"},
 		{"name":"_totalSupply","type":"uint128"},
-		{"name":"_owner","type":"uint256"},
 		{"name":"_codeIndex","type":"cell"},
 		{"name":"_codeIndexBasis","type":"cell"},
 		{"name":"_indexDeployValue","type":"uint128"},
 		{"name":"_indexDestroyValue","type":"uint128"},
 		{"name":"_deployIndexBasisValue","type":"uint128"},
+		{"name":"_owner","type":"uint256"},
 		{"name":"_remainOnNft","type":"uint128"}
 	]
 }

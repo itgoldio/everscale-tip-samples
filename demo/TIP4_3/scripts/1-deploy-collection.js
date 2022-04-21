@@ -1,8 +1,9 @@
 async function main() {
   const Collection = await locklift.factory.getContract('Collection');
   const Nft = await locklift.factory.getContract('Nft');
-  const Index = await locklift.factory.getContract('../../../contracts/TIP4_3/compiled/Index');
-  const IndexBasis = await locklift.factory.getContract('../../../contracts/TIP4_3/compiled/IndexBasis');
+  // const Index = await locklift.factory.getContract('@itgold/everscale-tip/contracts/TIP4_3/compiled/Index');
+  const Index = await locklift.factory.getContract('Index');
+  const IndexBasis = await locklift.factory.getContract('IndexBasis');
   const [keyPair] = await locklift.keys.getKeyPairs();
   /// Type your ownerPubkey
   const ownerPubkey = "0x" + keyPair.public;

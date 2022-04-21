@@ -46,40 +46,6 @@
 			]
 		},
 		{
-			"name": "setIndexDeployValue",
-			"inputs": [
-				{"name":"indexDeployValue","type":"uint128"}
-			],
-			"outputs": [
-			]
-		},
-		{
-			"name": "setIndexDestroyValue",
-			"inputs": [
-				{"name":"indexDestroyValue","type":"uint128"}
-			],
-			"outputs": [
-			]
-		},
-		{
-			"name": "indexDeployValue",
-			"inputs": [
-				{"name":"answerId","type":"uint32"}
-			],
-			"outputs": [
-				{"name":"value0","type":"uint128"}
-			]
-		},
-		{
-			"name": "indexDestroyValue",
-			"inputs": [
-				{"name":"answerId","type":"uint32"}
-			],
-			"outputs": [
-				{"name":"value0","type":"uint128"}
-			]
-		},
-		{
 			"name": "changeOwner",
 			"inputs": [
 				{"name":"newOwner","type":"address"},
