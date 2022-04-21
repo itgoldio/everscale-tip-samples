@@ -11,6 +11,12 @@ import './Nft.sol';
 
 contract Collection is TIP4_1Collection, OwnableExternal {
 
+    /**
+    * Errors
+    **/
+    uint8 constant sender_is_not_owner = 100;
+    uint8 constant value_is_less_than_required = 101;
+
     /// _remainOnNft - the number of crystals that will remain after the entire mint 
     /// process is completed on the Nft contract
     uint128 _remainOnNft = 0.3 ton;
@@ -27,7 +33,7 @@ contract Collection is TIP4_1Collection, OwnableExternal {
     }
 
     function mintNft() external virtual {
-        require(msg.value > _remainOnNft + 0.1 ton, CollectionErrors.value_is_less_than_required);
+        require(msg.value > _remainOnNft + 0.1 ton, value_is_less_than_required);
         tvm.rawReserve(0, 4);
 
         uint256 id = uint256(_totalSupply);
@@ -55,9 +61,14 @@ contract Collection is TIP4_1Collection, OwnableExternal {
     
     }
 
-    function setRemainOnNft(uint128 remainOnNft) external virtual onlyOwner {
+    function setRemainOnNft(uint128 remainOnNft) external virtual {
+        require(TIP4_1Collection._isOwner(), sender_is_not_owner);
         _remainOnNft = remainOnNft;
     } 
+
+    function _isOwner() internal override onlyOwner returns(bool){
+        return true;
+    }
 
     function _buildNftState(
         TvmCell code,

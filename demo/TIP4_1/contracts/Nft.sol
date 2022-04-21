@@ -1,5 +1,3 @@
-// ItGold.io Contracts (v1.0.0) 
-
 pragma ton-solidity = 0.58.1;
 
 pragma AbiHeader expire;
