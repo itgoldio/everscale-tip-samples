@@ -14,8 +14,8 @@ contract Collection is TIP4_1Collection, OwnableExternal {
     /**
     * Errors
     **/
-    uint8 constant sender_is_not_owner = 100;
-    uint8 constant value_is_less_than_required = 101;
+    uint8 constant sender_is_not_owner = 101;
+    uint8 constant value_is_less_than_required = 102;
 
     /// _remainOnNft - the number of crystals that will remain after the entire mint 
     /// process is completed on the Nft contract
