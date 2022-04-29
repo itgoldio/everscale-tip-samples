@@ -55,46 +55,22 @@
 			]
 		},
 		{
-			"name": "setIndexDeployValue",
-			"inputs": [
-				{"name":"indexDeployValue","type":"uint128"}
-			],
-			"outputs": [
-			]
-		},
-		{
-			"name": "setIndexDestroyValue",
-			"inputs": [
-				{"name":"indexDestroyValue","type":"uint128"}
-			],
-			"outputs": [
-			]
-		},
-		{
-			"name": "indexDeployValue",
-			"inputs": [
-				{"name":"answerId","type":"uint32"}
-			],
-			"outputs": [
-				{"name":"value0","type":"uint128"}
-			]
-		},
-		{
-			"name": "indexDestroyValue",
-			"inputs": [
-				{"name":"answerId","type":"uint32"}
-			],
-			"outputs": [
-				{"name":"value0","type":"uint128"}
-			]
-		},
-		{
 			"name": "getJson",
 			"inputs": [
 				{"name":"answerId","type":"uint32"}
 			],
 			"outputs": [
 				{"name":"json","type":"string"}
+			]
+		},
+		{
+			"name": "transfer",
+			"inputs": [
+				{"name":"to","type":"address"},
+				{"name":"sendGasTo","type":"address"},
+				{"components":[{"name":"value","type":"uint128"},{"name":"payload","type":"cell"}],"name":"callbacks","type":"map(address,tuple)"}
+			],
+			"outputs": [
 			]
 		},
 		{
