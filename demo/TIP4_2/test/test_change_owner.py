@@ -29,20 +29,15 @@ class TestNftChangeOwner(unittest.TestCase):
             change_value=CHANGE_OWNER_VALUE
         )
         
-        first_event = ts4.pop_event()
-        second_event = ts4.pop_event()
+        event = ts4.pop_event()
 
-        self.assertTrue(first_event.is_event('ManagerChanged', src = self.nft.address, dst = ts4.Address(None)))
-        self.assertEqual(old_nft_owner.address, ts4.Address(first_event.params['oldManager']))
-        self.assertEqual(new_nft_owner.address, ts4.Address(first_event.params['newManager']))
-
-        self.assertTrue(second_event.is_event('OwnerChanged', src = self.nft.address, dst = ts4.Address(None)))
-        self.assertEqual(old_nft_owner.address, ts4.Address(second_event.params['oldOwner']))
-        self.assertEqual(new_nft_owner.address, ts4.Address(second_event.params['newOwner']))
+        self.assertTrue(event.is_event('OwnerChanged', src = self.nft.address, dst = ts4.Address(None)))
+        self.assertEqual(old_nft_owner.address, ts4.Address(event.params['oldOwner']))
+        self.assertEqual(new_nft_owner.address, ts4.Address(event.params['newOwner']))
 
         self.nft.check_state(
             new_nft_owner.address,
-            new_nft_owner.address,
+            old_nft_owner.address,
             self.collection.address,
             REMAIN_ON_NFT_VALUE + CHANGE_OWNER_VALUE
         )
@@ -76,20 +71,15 @@ class TestNftChangeOwner(unittest.TestCase):
             change_value=CHANGE_OWNER_VALUE
         )
         
-        first_event = ts4.pop_event()
-        second_event = ts4.pop_event()
+        event = ts4.pop_event()
 
-        self.assertTrue(first_event.is_event('ManagerChanged', src = self.nft.address, dst = ts4.Address(None)))
-        self.assertEqual(old_nft_owner.address, ts4.Address(first_event.params['oldManager']))
-        self.assertEqual(new_nft_owner.address, ts4.Address(first_event.params['newManager']))
-
-        self.assertTrue(second_event.is_event('OwnerChanged', src = self.nft.address, dst = ts4.Address(None)))
-        self.assertEqual(old_nft_owner.address, ts4.Address(second_event.params['oldOwner']))
-        self.assertEqual(new_nft_owner.address, ts4.Address(second_event.params['newOwner']))
+        self.assertTrue(event.is_event('OwnerChanged', src = self.nft.address, dst = ts4.Address(None)))
+        self.assertEqual(old_nft_owner.address, ts4.Address(event.params['oldOwner']))
+        self.assertEqual(new_nft_owner.address, ts4.Address(event.params['newOwner']))
         
         self.nft.check_state(
             new_nft_owner.address,
-            new_nft_owner.address,
+            old_nft_owner.address,
             self.collection.address,
             REMAIN_ON_NFT_VALUE
         )
@@ -157,20 +147,66 @@ class TestNftChangeOwner(unittest.TestCase):
         ts4.dispatch_one_message()  
 
         
-        first_event = ts4.pop_event()
-        second_event = ts4.pop_event()
+        event = ts4.pop_event()
 
-        self.assertTrue(first_event.is_event('ManagerChanged', src = self.nft.address, dst = ts4.Address(None)))
-        self.assertEqual(old_nft_owner.address, ts4.Address(first_event.params['oldManager']))
-        self.assertEqual(new_nft_owner.address, ts4.Address(first_event.params['newManager']))
-
-        self.assertTrue(second_event.is_event('OwnerChanged', src = self.nft.address, dst = ts4.Address(None)))
-        self.assertEqual(old_nft_owner.address, ts4.Address(second_event.params['oldOwner']))
-        self.assertEqual(new_nft_owner.address, ts4.Address(second_event.params['newOwner']))
+        self.assertTrue(event.is_event('OwnerChanged', src = self.nft.address, dst = ts4.Address(None)))
+        self.assertEqual(old_nft_owner.address, ts4.Address(event.params['oldOwner']))
+        self.assertEqual(new_nft_owner.address, ts4.Address(event.params['newOwner']))
 
         self.nft.check_state(
             new_nft_owner.address,
-            new_nft_owner.address,
+            old_nft_owner.address,
             self.collection.address,
             REMAIN_ON_NFT_VALUE + CHANGE_OWNER_WITH_CALLBACKS_VALUE - 2 * SEND_CALLBACK_VALUE
         )
+
+    def test_with_callbacks_and_wrong_value(self):
+        old_nft_owner = self.nft_owner
+        new_nft_owner = Setcode()
+
+        callbacks = {
+            random_address().str(): {
+                "value": SEND_CALLBACK_VALUE, 
+                "payload": "te6ccgEBAQEAMAAAW1t00puAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACLA="
+            },
+            random_address().str(): {
+                "value": SEND_CALLBACK_VALUE, 
+                "payload": "te6ccgEBAQEAMAAAW1t00puAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACLA="
+            },
+            random_address().str(): {
+                "value": SEND_CALLBACK_VALUE, 
+                "payload": "te6ccgEBAQEAMAAAW1t00puAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACLA="
+            },
+            random_address().str(): {
+                "value": SEND_CALLBACK_VALUE, 
+                "payload": "te6ccgEBAQEAMAAAW1t00puAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACLA="
+            },
+            random_address().str(): {
+                "value": SEND_CALLBACK_VALUE, 
+                "payload": "te6ccgEBAQEAMAAAW1t00puAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACLA="
+            },
+            random_address().str(): {
+                "value": SEND_CALLBACK_VALUE, 
+                "payload": "te6ccgEBAQEAMAAAW1t00puAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACLA="
+            }
+        }
+
+        self.nft.change_owner(
+            new_owner=new_nft_owner.address, 
+            change_value=CHANGE_OWNER_WITH_WRONG_CALLBACKS_VALUE, 
+            callbacks=callbacks,
+            dispatch=False
+        )
+
+        try: 
+            ts4.dispatch_one_message()
+        except Exception:
+            self.nft.check_state(
+                old_nft_owner.address,
+                old_nft_owner.address,
+                self.collection.address,
+                REMAIN_ON_NFT_VALUE
+            )
+
+        # if transaction is failed - events not be emited
+        self.assertTrue(len(ts4.g.EVENTS) == 0)

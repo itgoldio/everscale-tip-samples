@@ -14,6 +14,16 @@
 			]
 		},
 		{
+			"name": "transfer",
+			"inputs": [
+				{"name":"to","type":"address"},
+				{"name":"sendGasTo","type":"address"},
+				{"components":[{"name":"value","type":"uint128"},{"name":"payload","type":"cell"}],"name":"callbacks","type":"map(address,tuple)"}
+			],
+			"outputs": [
+			]
+		},
+		{
 			"name": "changeOwner",
 			"inputs": [
 				{"name":"newOwner","type":"address"},

@@ -10,7 +10,7 @@ from wrappers.setcode import Setcode
 from wrappers.collection import Collection
 from wrappers.nft import Nft
 
-class TestNftChangeOwner(unittest.TestCase):
+class TestNftTransfer(unittest.TestCase):
 
     def setUp(self):
         self.nft_owner = Setcode()
@@ -24,20 +24,25 @@ class TestNftChangeOwner(unittest.TestCase):
         old_nft_owner = self.nft_owner
         new_nft_owner = Setcode()
 
-        self.nft.change_owner(
-            new_owner=new_nft_owner.address, 
-            change_value=CHANGE_OWNER_VALUE
+        self.nft.transfer(
+            to=new_nft_owner.address, 
+            transfer_value=CHANGE_OWNER_VALUE
         )
         
-        event = ts4.pop_event()
+        first_event = ts4.pop_event()
+        second_event = ts4.pop_event()
 
-        self.assertTrue(event.is_event('OwnerChanged', src = self.nft.address, dst = ts4.Address(None)))
-        self.assertEqual(old_nft_owner.address, ts4.Address(event.params['oldOwner']))
-        self.assertEqual(new_nft_owner.address, ts4.Address(event.params['newOwner']))
+        self.assertTrue(first_event.is_event('OwnerChanged', src = self.nft.address, dst = ts4.Address(None)))
+        self.assertEqual(old_nft_owner.address, ts4.Address(first_event.params['oldOwner']))
+        self.assertEqual(new_nft_owner.address, ts4.Address(first_event.params['newOwner']))
+
+        self.assertTrue(second_event.is_event('ManagerChanged', src = self.nft.address, dst = ts4.Address(None)))
+        self.assertEqual(old_nft_owner.address, ts4.Address(second_event.params['oldManager']))
+        self.assertEqual(new_nft_owner.address, ts4.Address(second_event.params['newManager']))
 
         self.nft.check_state(
             new_nft_owner.address,
-            old_nft_owner.address,
+            new_nft_owner.address,
             self.collection.address,
             REMAIN_ON_NFT_VALUE + CHANGE_OWNER_VALUE
         )
@@ -48,9 +53,9 @@ class TestNftChangeOwner(unittest.TestCase):
         wrong_owner = Setcode()
         self.nft.nft_owner = wrong_owner
 
-        self.nft.change_owner(
-            new_owner=random_address(), 
-            change_value=CHANGE_OWNER_VALUE,
+        self.nft.transfer(
+            to=random_address(), 
+            transfer_value=CHANGE_OWNER_VALUE,
             expect_ec=103
         )
 
@@ -65,21 +70,26 @@ class TestNftChangeOwner(unittest.TestCase):
         old_nft_owner = self.nft_owner
         new_nft_owner = Setcode()
         
-        self.nft.change_owner(
-            new_owner=new_nft_owner.address, 
+        self.nft.transfer(
+            to=new_nft_owner.address, 
             send_gas_to=old_nft_owner.address, 
-            change_value=CHANGE_OWNER_VALUE
+            transfer_value=CHANGE_OWNER_VALUE
         )
         
-        event = ts4.pop_event()
+        first_event = ts4.pop_event()
+        second_event = ts4.pop_event()
 
-        self.assertTrue(event.is_event('OwnerChanged', src = self.nft.address, dst = ts4.Address(None)))
-        self.assertEqual(old_nft_owner.address, ts4.Address(event.params['oldOwner']))
-        self.assertEqual(new_nft_owner.address, ts4.Address(event.params['newOwner']))
+        self.assertTrue(first_event.is_event('OwnerChanged', src = self.nft.address, dst = ts4.Address(None)))
+        self.assertEqual(old_nft_owner.address, ts4.Address(first_event.params['oldOwner']))
+        self.assertEqual(new_nft_owner.address, ts4.Address(first_event.params['newOwner']))
+
+        self.assertTrue(second_event.is_event('ManagerChanged', src = self.nft.address, dst = ts4.Address(None)))
+        self.assertEqual(old_nft_owner.address, ts4.Address(second_event.params['oldManager']))
+        self.assertEqual(new_nft_owner.address, ts4.Address(second_event.params['newManager']))
         
         self.nft.check_state(
             new_nft_owner.address,
-            old_nft_owner.address,
+            new_nft_owner.address,
             self.collection.address,
             REMAIN_ON_NFT_VALUE
         )
@@ -88,9 +98,9 @@ class TestNftChangeOwner(unittest.TestCase):
         old_nft_owner = self.nft.nft_owner
         new_nft_owner = old_nft_owner
 
-        self.nft.change_owner(
-            new_owner=new_nft_owner.address, 
-            change_value=CHANGE_OWNER_VALUE
+        self.nft.transfer(
+            to=new_nft_owner.address, 
+            transfer_value=CHANGE_OWNER_VALUE
         )
 
         # if new_owner == old_owner - Events will not be emited
@@ -120,16 +130,16 @@ class TestNftChangeOwner(unittest.TestCase):
             }
         }
 
-        self.nft.change_owner(
-            new_owner=new_nft_owner.address, 
-            change_value=CHANGE_OWNER_WITH_CALLBACKS_VALUE, 
+        self.nft.transfer(
+            to=new_nft_owner.address, 
+            transfer_value=CHANGE_OWNER_WITH_CALLBACKS_VALUE,
             callbacks=callbacks,
             dispatch=False
         )
 
         # changeOwner
         msg = ts4.peek_msg()
-        self.assertTrue(msg.is_call('changeOwner') and msg.dst == self.nft.address)
+        self.assertTrue(msg.is_call('transfer') and msg.dst == self.nft.address)
         ts4.dispatch_one_message()
        
         # callback 1
@@ -146,16 +156,20 @@ class TestNftChangeOwner(unittest.TestCase):
         self.assertTrue(msg.value == SEND_CALLBACK_VALUE)
         ts4.dispatch_one_message()  
 
+        first_event = ts4.pop_event()
+        second_event = ts4.pop_event()
         
-        event = ts4.pop_event()
+        self.assertTrue(first_event.is_event('OwnerChanged', src = self.nft.address, dst = ts4.Address(None)))
+        self.assertEqual(old_nft_owner.address, ts4.Address(first_event.params['oldOwner']))
+        self.assertEqual(new_nft_owner.address, ts4.Address(first_event.params['newOwner']))
 
-        self.assertTrue(event.is_event('OwnerChanged', src = self.nft.address, dst = ts4.Address(None)))
-        self.assertEqual(old_nft_owner.address, ts4.Address(event.params['oldOwner']))
-        self.assertEqual(new_nft_owner.address, ts4.Address(event.params['newOwner']))
+        self.assertTrue(second_event.is_event('ManagerChanged', src = self.nft.address, dst = ts4.Address(None)))
+        self.assertEqual(old_nft_owner.address, ts4.Address(second_event.params['oldManager']))
+        self.assertEqual(new_nft_owner.address, ts4.Address(second_event.params['newManager']))
 
         self.nft.check_state(
             new_nft_owner.address,
-            old_nft_owner.address,
+            new_nft_owner.address,
             self.collection.address,
             REMAIN_ON_NFT_VALUE + CHANGE_OWNER_WITH_CALLBACKS_VALUE - 2 * SEND_CALLBACK_VALUE
         )
@@ -191,9 +205,9 @@ class TestNftChangeOwner(unittest.TestCase):
             }
         }
 
-        self.nft.change_owner(
-            new_owner=new_nft_owner.address, 
-            change_value=CHANGE_OWNER_WITH_WRONG_CALLBACKS_VALUE, 
+        self.nft.transfer(
+            to=new_nft_owner.address, 
+            transfer_value=CHANGE_OWNER_WITH_WRONG_CALLBACKS_VALUE, 
             callbacks=callbacks,
             dispatch=False
         )

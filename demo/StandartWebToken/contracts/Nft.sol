@@ -37,6 +37,22 @@ contract Nft is TIP4_1Nft, TIP4_2Nft, TIP4_3Nft {
         tvm.accept();
     }
 
+    function _beforeTransfer(
+        address to, 
+        address sendGasTo, 
+        mapping(address => CallbackParams) callbacks
+    ) internal virtual override(TIP4_1Nft, TIP4_3Nft) {
+        TIP4_3Nft._beforeTransfer(to, sendGasTo, callbacks);
+    }   
+
+    function _afterTransfer(
+        address to, 
+        address sendGasTo, 
+        mapping(address => CallbackParams) callbacks
+    ) internal virtual override(TIP4_1Nft, TIP4_3Nft) {
+        TIP4_3Nft._afterTransfer(to, sendGasTo, callbacks);
+    }   
+
     function _beforeChangeOwner(
         address oldOwner, 
         address newOwner,

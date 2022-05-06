@@ -30,7 +30,7 @@ class Nft(ts4.BaseContract):
         return self.call_responsible('getInfo')[COLLECTION_KEY]
 
     @property 
-    def json(self) -> ts4.Address:
+    def json(self) -> str:
         return self.call_responsible('getJson')
 
     def call_responsible(self, name: str, params: dict = None):
@@ -41,6 +41,22 @@ class Nft(ts4.BaseContract):
 
     def get_info(self) -> dict:
         return self.call_responsible('getInfo')
+
+    def transfer(
+        self,
+        to: ts4.Address,
+        send_gas_to: ts4.Address = ZERO_ADDRESS,
+        callbacks: dict = {},
+        transfer_value: int = 0,
+        expect_ec: int = 0, 
+        dispatch: bool = True
+    ):
+        call_set = CallSet('transfer', input={
+            'to': to.str(),
+            'sendGasTo': send_gas_to.str(),
+            'callbacks': callbacks
+        })
+        self.nft_owner.send_call_set(self, value=transfer_value, call_set=call_set, expect_ec=expect_ec, dispatch=dispatch)
 
     def change_owner(
         self,

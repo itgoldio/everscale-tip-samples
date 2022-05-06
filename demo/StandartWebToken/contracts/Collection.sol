@@ -12,7 +12,14 @@ import './interfaces/ITokenBurned.sol';
 import './Nft.sol';
 
 
-contract Collection is TIP4_2Collection, TIP4_3Collection, ITokenBurned {
+contract Collection is TIP4_2Collection, TIP4_3Collection, OwnableExternal, ITokenBurned {
+
+    /**
+    * Errors
+    **/
+    uint8 constant sender_is_not_owner = 101;
+    uint8 constant value_is_less_than_required = 102;
+
 
     /// _remainOnNft - the number of crystals that will remain after the entire mint 
     /// process is completed on the Nft contract
@@ -29,14 +36,15 @@ contract Collection is TIP4_2Collection, TIP4_3Collection, ITokenBurned {
         uint256 ownerPubkey,
         string json,
         uint128 mintingFee
+    ) OwnableExternal(
+        ownerPubkey
     ) TIP4_1Collection (
         codeNft
     ) TIP4_2Collection (
         json
     ) TIP4_3Collection (
         codeIndex,
-        codeIndexBasis,
-        ownerPubkey
+        codeIndexBasis
     ) public {
         tvm.accept();
 
@@ -46,7 +54,7 @@ contract Collection is TIP4_2Collection, TIP4_3Collection, ITokenBurned {
     function mintNft(
         string json
     ) external virtual {
-        require(msg.value > _remainOnNft + _mintingFee + (2 * _indexDeployValue), CollectionErrors.value_is_less_than_required);
+        require(msg.value > _remainOnNft + _mintingFee + (2 * _indexDeployValue), value_is_less_than_required);
         /// reserve original_balance + _mintingFee 
         tvm.rawReserve(_mintingFee, 4);
 
@@ -101,6 +109,10 @@ contract Collection is TIP4_2Collection, TIP4_3Collection, ITokenBurned {
 
     function mintingFee() external view responsible returns(uint128) {
         return {value: 0, flag: 64, bounce: false}(_mintingFee);
+    }
+
+    function _isOwner() internal override onlyOwner returns(bool){
+        return true;
     }
 
     function _buildNftState(
