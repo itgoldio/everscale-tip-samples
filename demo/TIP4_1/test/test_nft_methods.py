@@ -21,9 +21,9 @@ class TestNft(unittest.TestCase):
         self.nft = self.collection.nft_of(self.nft_owner, 0)
 
     def test_base(self):
-        #0x69D5D1EC - TIP4_1NFT 
+        #0x78084F7E - TIP4_1NFT 
         #0x3204EC29 - ITIP6
-        interface_ids = (0x69D5D1EC, 0x3204EC29)
+        interface_ids = (0x78084F7E, 0x3204EC29)
         check_supports_interfaces(self.nft, interface_ids)
         self.assertEqual(self.nft.balance, REMAIN_ON_NFT_VALUE, 'Wrong nft balance')
         self.nft.check_state(
