@@ -10,7 +10,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@itgold/everscale-tip": "^1.1.1",
+    "@itgold/everscale-tip": "^1.1.2",
     "locklift": "git+https://github.com/broxus/ton-locklift.git"
   }
 }

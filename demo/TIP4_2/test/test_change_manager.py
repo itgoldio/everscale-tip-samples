@@ -159,3 +159,61 @@ class TestNftChangeManager(unittest.TestCase):
             self.collection.address,
             REMAIN_ON_NFT_VALUE + CHANGE_MANAGER_WITH_CALLBACKS_VALUE - 2 * SEND_CALLBACK_VALUE
         )
+
+    def test_with_on_bounce(self):
+        old_nft_manager = self.nft_owner
+        new_nft_manager = random_address()
+
+        payload_receiver = new_nft_manager
+        callbacks = {
+            payload_receiver.str(): {
+                "value": SEND_CALLBACK_VALUE, 
+                "payload": "te6ccgEBAQEAMAAAW1t00puAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACLA="
+            }
+        }
+
+        self.nft.change_manager(
+            new_manager=new_nft_manager, 
+            change_value=CHANGE_MANAGER_WITH_CALLBACKS_VALUE,
+            callbacks=callbacks,
+            dispatch=False
+        )
+
+        # changeOwner
+        msg = ts4.peek_msg()
+        self.assertTrue(msg.is_call('changeManager') and msg.dst == self.nft.address)
+        ts4.dispatch_one_message()
+       
+        # callback
+        msg = ts4.peek_msg()
+        self.assertTrue(msg.src == self.nft.address)
+        self.assertTrue(msg.dst == payload_receiver)
+        self.assertTrue(msg.value == SEND_CALLBACK_VALUE)
+        ts4.dispatch_one_message()
+
+        # bounced message
+        msg = ts4.peek_msg()
+        self.assertTrue(msg.src == payload_receiver)
+        self.assertTrue(msg.bounced)
+        self.assertTrue(msg.value == SEND_CALLBACK_VALUE)
+        ts4.dispatch_one_message()
+        
+        # send gas to owner
+        msg = ts4.peek_msg()
+        self.assertTrue(msg.src == self.nft.address)
+        self.assertTrue(msg.dst == self.nft.nft_owner.address)
+        self.assertTrue(msg.value == SEND_CALLBACK_VALUE)
+        ts4.dispatch_one_message()
+
+        event = ts4.pop_event()
+
+        self.assertTrue(event.is_event('ManagerChanged', src = self.nft.address, dst = ts4.Address(None)))
+        self.assertEqual(old_nft_manager.address, ts4.Address(event.params['oldManager']))
+        self.assertEqual(new_nft_manager, ts4.Address(event.params['newManager']))
+
+        self.nft.check_state(
+            self.nft.nft_owner.address,
+            self.nft.nft_owner.address,
+            self.collection.address,
+            REMAIN_ON_NFT_VALUE + CHANGE_MANAGER_WITH_CALLBACKS_VALUE - SEND_CALLBACK_VALUE
+        )
