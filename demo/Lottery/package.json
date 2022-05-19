@@ -1,0 +1,15 @@
+{
+  "name": "tip4_1",
+  "version": "1.0.0",
+  "description": "TIP4_1 demo",
+  "scripts": {
+    "compile": "locklift build --config locklift.config.js",
+    "dev": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@itgold/everscale-tip": "^1.1.2",
+    "locklift": "git+https://github.com/broxus/ton-locklift.git"
+  }
+}
