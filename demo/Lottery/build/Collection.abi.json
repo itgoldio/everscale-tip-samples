@@ -12,7 +12,8 @@
 				{"name":"ownerPubkey","type":"uint256"},
 				{"name":"json","type":"string"},
 				{"name":"mintingFee","type":"uint128"},
-				{"components":[{"name":"numOfWinners","type":"uint128"},{"name":"winningAmount","type":"uint128"}],"name":"awards","type":"tuple[]"}
+				{"components":[{"name":"numOfWinners","type":"uint128"},{"name":"winningAmount","type":"uint128"}],"name":"awards","type":"tuple[]"},
+				{"name":"editionAmount","type":"uint128"}
 			],
 			"outputs": [
 			]
@@ -29,6 +30,7 @@
 		{
 			"name": "getTotalParticipants",
 			"inputs": [
+				{"name":"answerId","type":"uint32"}
 			],
 			"outputs": [
 				{"name":"totalParticipants","type":"uint128"}
@@ -40,6 +42,15 @@
 				{"name":"id","type":"uint256"}
 			],
 			"outputs": [
+			]
+		},
+		{
+			"name": "genNumber",
+			"inputs": [
+				{"name":"limit","type":"uint256"}
+			],
+			"outputs": [
+				{"name":"number","type":"uint128"}
 			]
 		},
 		{
@@ -227,16 +238,6 @@
 			]
 		},
 		{
-			"name": "Test",
-			"inputs": [
-				{"name":"counter","type":"uint128"},
-				{"name":"random","type":"uint128"},
-				{"name":"totalParticipants","type":"uint128"}
-			],
-			"outputs": [
-			]
-		},
-		{
 			"name": "OwnershipTransferred",
 			"inputs": [
 				{"name":"oldOwner","type":"uint256"},
@@ -286,6 +287,8 @@
 		{"name":"_remainOnNft","type":"uint128"},
 		{"name":"_lastTokenId","type":"uint128"},
 		{"name":"_mintingFee","type":"uint128"},
+		{"name":"_editionAmount","type":"uint128"},
+		{"name":"_ticketsNotPlayed","type":"uint128"},
 		{"components":[{"name":"numOfWinners","type":"uint128"},{"name":"winningAmount","type":"uint128"}],"name":"_awards","type":"tuple[]"}
 	]
 }

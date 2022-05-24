@@ -8,6 +8,7 @@ async function main() {
   const json = "{}";
   const mintingFee = 500000000;
   const awards = [{"numOfWinners": 1, "winningAmount": 1000000000}, {"numOfWinners": 1, "winningAmount": 500000000}]
+  const editionAmount = 5;
 
   const collection = await locklift.giver.deployContract({
     contract: Collection,
@@ -18,7 +19,8 @@ async function main() {
       ownerPubkey : ownerPubkey,
       json : json,
       mintingFee : mintingFee,
-      awards : awards
+      awards : awards,
+      editionAmount: editionAmount
     },
     initParams: {},
     keyPair,

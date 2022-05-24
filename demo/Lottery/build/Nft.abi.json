@@ -36,6 +36,7 @@
 		{
 			"name": "receivePrize",
 			"inputs": [
+				{"name":"winningAmount","type":"uint128"}
 			],
 			"outputs": [
 			]
@@ -136,9 +137,16 @@
 	],
 	"events": [
 		{
-			"name": "PrizeReceived",
+			"name": "TicketWon",
 			"inputs": [
 				{"name":"winningAmount","type":"uint128"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "TicketLost",
+			"inputs": [
 			],
 			"outputs": [
 			]

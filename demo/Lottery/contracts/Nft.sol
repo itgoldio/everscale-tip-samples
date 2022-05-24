@@ -18,7 +18,8 @@ contract Nft is TIP4_1Nft, TIP4_2Nft, TIP4_3Nft, INFTLottery {
     address _delegatedPlayerAddress;
     bool _prizeHasBeenReceived;
 
-    event PrizeReceived(uint128 winningAmount);
+    event TicketWon(uint128 winningAmount);
+    event TicketLost();
 
     constructor(
         address owner,
@@ -91,13 +92,16 @@ contract Nft is TIP4_1Nft, TIP4_2Nft, TIP4_3Nft, INFTLottery {
         ICollectionLottery(_collection).getPrize{value: 0, flag: 128}(_id);
     }
 
-    function receivePrize() external override {
+    function receivePrize(uint128 winningAmount) external override {
         require(msg.sender == _collection);
         tvm.rawReserve(0, 4);
 
         _prizeHasBeenReceived = true;
-        emit PrizeReceived(msg.value);
-        
+        if (winningAmount == 0) {
+            emit TicketLost();
+        } else {
+            emit TicketWon(winningAmount);
+        }
         _owner.transfer({value: 0, flag: 128});
     }
 
