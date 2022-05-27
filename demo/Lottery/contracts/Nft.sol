@@ -15,8 +15,10 @@ import './interfaces/ITokenBurned.sol';
 
 contract Nft is TIP4_1Nft, TIP4_2Nft, TIP4_3Nft, INFTLottery {
 
-    address _delegatedPlayerAddress;
-    bool _prizeHasBeenReceived;
+    address _lotteryPlatfomAddress;
+    bool _used;
+
+    string[] _attributes;
 
     event TicketWon(uint128 winningAmount);
     event TicketLost();
@@ -29,7 +31,7 @@ contract Nft is TIP4_1Nft, TIP4_2Nft, TIP4_3Nft, INFTLottery {
         uint128 indexDeployValue,
         uint128 indexDestroyValue,
         TvmCell codeIndex,
-        address delegatedPlayerAddress  
+        address lotteryPlatfomAddress  
     ) TIP4_1Nft(
         owner,
         sendGasTo,
@@ -41,7 +43,8 @@ contract Nft is TIP4_1Nft, TIP4_2Nft, TIP4_3Nft, INFTLottery {
         indexDestroyValue,
         codeIndex
     ) public {
-        _delegatedPlayerAddress = delegatedPlayerAddress;
+        _lotteryPlatfomAddress = lotteryPlatfomAddress;
+        _attributes.push("Not used");
     }
 
     function _beforeTransfer(
@@ -85,9 +88,10 @@ contract Nft is TIP4_1Nft, TIP4_2Nft, TIP4_3Nft, INFTLottery {
     }
     
     function getPrize() external override {
-        require(msg.sender == _manager || (_delegatedPlayerAddress.value != 0 && msg.sender == _delegatedPlayerAddress));
-        require(!_prizeHasBeenReceived);
-        tvm.rawReserve(0, 4);
+        require(_lotteryPlatfomAddress.value != 0 && msg.sender == _lotteryPlatfomAddress);
+        require(_owner == _manager);
+        require(!_used);
+        tvm.rawReserve(0, 4);   
 
         ICollectionLottery(_collection).getPrize{value: 0, flag: 128}(_id);
     }
@@ -96,13 +100,30 @@ contract Nft is TIP4_1Nft, TIP4_2Nft, TIP4_3Nft, INFTLottery {
         require(msg.sender == _collection);
         tvm.rawReserve(0, 4);
 
-        _prizeHasBeenReceived = true;
+        _used = true;
+        for (uint i = 0; i < _attributes.length; i++) {
+            if (_attributes[i] == "Not used") {
+                _attributes[i] = "Used";
+            }
+        }
+
         if (winningAmount == 0) {
             emit TicketLost();
         } else {
             emit TicketWon(winningAmount);
         }
         _owner.transfer({value: 0, flag: 128});
+    }
+
+    function getJson() external view override responsible returns (string json) {
+        string args = "\"Attributes\":[";
+        for (uint i = 0; i < _attributes.length; i++) {
+            args += format("\"{}\"", _attributes[i]);
+            if (i + 1 != _attributes.length) {
+                args += ",";
+            }
+        }
+        return {value: 0, flag: 64, bounce: false} (format("{},{}]}", _json.substr(0, _json.byteLength() - 1), args));
     }
 
 }

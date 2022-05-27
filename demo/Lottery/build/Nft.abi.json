@@ -13,7 +13,7 @@
 				{"name":"indexDeployValue","type":"uint128"},
 				{"name":"indexDestroyValue","type":"uint128"},
 				{"name":"codeIndex","type":"cell"},
-				{"name":"delegatedPlayerAddress","type":"address"}
+				{"name":"lotteryPlatfomAddress","type":"address"}
 			],
 			"outputs": [
 			]
@@ -39,6 +39,15 @@
 				{"name":"winningAmount","type":"uint128"}
 			],
 			"outputs": [
+			]
+		},
+		{
+			"name": "getJson",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"json","type":"string"}
 			]
 		},
 		{
@@ -68,15 +77,6 @@
 			],
 			"outputs": [
 				{"name":"index","type":"address"}
-			]
-		},
-		{
-			"name": "getJson",
-			"inputs": [
-				{"name":"answerId","type":"uint32"}
-			],
-			"outputs": [
-				{"name":"json","type":"string"}
 			]
 		},
 		{
@@ -205,7 +205,8 @@
 		{"name":"_indexDeployValue","type":"uint128"},
 		{"name":"_indexDestroyValue","type":"uint128"},
 		{"name":"_codeIndex","type":"cell"},
-		{"name":"_delegatedPlayerAddress","type":"address"},
-		{"name":"_prizeHasBeenReceived","type":"bool"}
+		{"name":"_lotteryPlatfomAddress","type":"address"},
+		{"name":"_used","type":"bool"},
+		{"name":"_attributes","type":"string[]"}
 	]
 }
