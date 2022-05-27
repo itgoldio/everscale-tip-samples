@@ -28,14 +28,6 @@ class TestCollection(unittest.TestCase):
         check_supports_interfaces(collection, interface_ids)
         self.assertEqual(collection.balance, INITIAL_BALANCE, 'Wrong collection balance')
 
-    def test_mint_with_no_mint_value(self):
-        setcode_wallet = Setcode()
-        setcode_initial_balance = ts4.get_balance(setcode_wallet.address)
-        collection = Collection(owner=setcode_wallet)   
-        collection.mint_nft(nft_owner=setcode_wallet, mint_value=0, expect_ec=102)
-        self.assertEqual(collection.total_supply, 0, 'Wrong total supply')
-        self.assertEqual(setcode_initial_balance, ts4.get_balance(setcode_wallet.address), 'Wrong balance')
-
     def test_mint(self):
         setcode_wallet = Setcode()
         setcode_initial_balance = ts4.get_balance(setcode_wallet.address)
