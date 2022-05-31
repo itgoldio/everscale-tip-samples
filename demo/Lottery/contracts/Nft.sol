@@ -93,6 +93,7 @@ contract Nft is TIP4_1Nft, TIP4_2Nft, TIP4_3Nft, INFTLottery {
         require(!_used);
         tvm.rawReserve(0, 4);   
 
+        _used = true;
         ICollectionLottery(_collection).getPrize{value: 0, flag: 128}(_id);
     }
 
@@ -100,7 +101,6 @@ contract Nft is TIP4_1Nft, TIP4_2Nft, TIP4_3Nft, INFTLottery {
         require(msg.sender == _collection);
         tvm.rawReserve(0, 4);
 
-        _used = true;
         for (uint i = 0; i < _attributes.length; i++) {
             if (_attributes[i] == "Not used") {
                 _attributes[i] = "Used";
