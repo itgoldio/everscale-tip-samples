@@ -1,0 +1,226 @@
+{
+	"ABI version": 2,
+	"version": "2.2",
+	"header": ["pubkey", "time", "expire"],
+	"functions": [
+		{
+			"name": "constructor",
+			"inputs": [
+				{"name":"collection","type":"address"},
+				{"name":"rewardTokenRoot","type":"address"},
+				{"name":"codeNft","type":"cell"},
+				{"name":"lockPeriod","type":"uint128"},
+				{"name":"farmStartTime","type":"uint128"},
+				{"name":"rewardPerSecond","type":"uint128"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "receiveTokenWalletAddress",
+			"inputs": [
+				{"name":"wallet","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "onNftChangeManager",
+			"inputs": [
+				{"name":"id","type":"uint256"},
+				{"name":"owner","type":"address"},
+				{"name":"oldManager","type":"address"},
+				{"name":"newManager","type":"address"},
+				{"name":"collection","type":"address"},
+				{"name":"sendGasTo","type":"address"},
+				{"name":"payload","type":"cell"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "onAcceptTokensTransfer",
+			"inputs": [
+				{"name":"tokenRoot","type":"address"},
+				{"name":"amount","type":"uint128"},
+				{"name":"sender","type":"address"},
+				{"name":"senderWallet","type":"address"},
+				{"name":"remainingGasTo","type":"address"},
+				{"name":"payload","type":"cell"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "finishDeposit",
+			"inputs": [
+				{"name":"nft","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "withdrawReward",
+			"inputs": [
+				{"name":"amount","type":"uint128"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "calculateRewardData",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"lastRewardTime","type":"uint128"},
+				{"name":"accRewardPerShare","type":"uint128"}
+			]
+		},
+		{
+			"name": "getDetails",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"active","type":"bool"},
+				{"name":"collection","type":"address"},
+				{"name":"rewardTokenRoot","type":"address"},
+				{"name":"rewardTokenWallet","type":"address"},
+				{"name":"rewardTokenWalletBalance","type":"uint128"},
+				{"name":"farmStartTime","type":"uint128"},
+				{"name":"rewardPerSecond","type":"uint128"},
+				{"name":"lockPeriod","type":"uint128"},
+				{"name":"lastRewardTime","type":"uint128"},
+				{"name":"accRewardPerShare","type":"uint128"}
+			]
+		},
+		{
+			"name": "_active",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_active","type":"bool"}
+			]
+		},
+		{
+			"name": "_collection",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_collection","type":"address"}
+			]
+		},
+		{
+			"name": "_codeNft",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_codeNft","type":"cell"}
+			]
+		},
+		{
+			"name": "_rewardTokenRoot",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_rewardTokenRoot","type":"address"}
+			]
+		},
+		{
+			"name": "_rewardTokenWallet",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_rewardTokenWallet","type":"address"}
+			]
+		},
+		{
+			"name": "_rewardTokenWalletBalance",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_rewardTokenWalletBalance","type":"uint128"}
+			]
+		},
+		{
+			"name": "_farmStartTime",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_farmStartTime","type":"uint128"}
+			]
+		},
+		{
+			"name": "_rewardPerSecond",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_rewardPerSecond","type":"uint128"}
+			]
+		},
+		{
+			"name": "_lockPeriod",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_lockPeriod","type":"uint128"}
+			]
+		},
+		{
+			"name": "_lastRewardTime",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_lastRewardTime","type":"uint128"}
+			]
+		},
+		{
+			"name": "_accRewardPerShare",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_accRewardPerShare","type":"uint128"}
+			]
+		},
+		{
+			"name": "_deposits",
+			"inputs": [
+			],
+			"outputs": [
+				{"components":[{"name":"depositor","type":"address"},{"name":"sendGasTo","type":"address"},{"name":"startDepositTime","type":"uint256"}],"name":"_deposits","type":"map(address,tuple)"}
+			]
+		},
+		{
+			"name": "_balances",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_balances","type":"map(address,uint128)"}
+			]
+		}
+	],
+	"data": [
+	],
+	"events": [
+	],
+	"fields": [
+		{"name":"_pubkey","type":"uint256"},
+		{"name":"_timestamp","type":"uint64"},
+		{"name":"_constructorFlag","type":"bool"},
+		{"name":"_checkList","type":"uint8"},
+		{"name":"_active","type":"bool"},
+		{"name":"_collection","type":"address"},
+		{"name":"_codeNft","type":"cell"},
+		{"name":"_rewardTokenRoot","type":"address"},
+		{"name":"_rewardTokenWallet","type":"address"},
+		{"name":"_rewardTokenWalletBalance","type":"uint128"},
+		{"name":"_farmStartTime","type":"uint128"},
+		{"name":"_rewardPerSecond","type":"uint128"},
+		{"name":"_lockPeriod","type":"uint128"},
+		{"name":"_lastRewardTime","type":"uint128"},
+		{"name":"_accRewardPerShare","type":"uint128"},
+		{"components":[{"name":"depositor","type":"address"},{"name":"sendGasTo","type":"address"},{"name":"startDepositTime","type":"uint256"}],"name":"_deposits","type":"map(address,tuple)"},
+		{"name":"_balances","type":"map(address,uint128)"}
+	]
+}
