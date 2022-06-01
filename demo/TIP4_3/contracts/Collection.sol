@@ -34,6 +34,7 @@ contract Collection is TIP4_3Collection, OwnableExternal {
         codeIndex,
         codeIndexBasis
     ) public {
+        tvm.accept();
     }
 
     function mintNft() external virtual {
