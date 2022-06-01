@@ -3,9 +3,9 @@ async function main() {
   const Nft = await locklift.factory.getContract('Nft');
   const [keyPair] = await locklift.keys.getKeyPairs();
 
-  const collection = "0:82b814172643d9e51c6602f9bc847a7c3e961caabdc3179d1f5bfb398fdc20e8";
-  const rewardTokenRoot = "0:04587638f14d3763087e0791b718e675d0d4bc448030c2b9c13bddab5d932795";
-  const lockPeriod = 300;
+  const collection = "0:9fbfac96c871df2ce4787585a3909a50ab0faa997bf5aecf13bd21709e4e69ab";
+  const rewardTokenRoot = "0:ab4f35e5601ef16826b967ccb8defb6858a2459e908a307a0cb41289adaf8648";
+  const lockPeriod = 1;
   const farmStartTime = 1653947832;
   const rewardPerSecond = 10000000;
 

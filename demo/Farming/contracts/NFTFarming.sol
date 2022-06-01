@@ -22,32 +22,33 @@ contract NFTFarming is INftChangeManager, IAcceptTokensTransferCallback {
     }
 
     // constants
-    uint128 constant TOKEN_WALLET_DEPLOY_VALUE = 0.5 ton;
-    uint128 constant TOKEN_WALLET_DEPLOY_GRAMS_VALUE = 0.1 ton;
-    uint128 constant TOKEN_TRANSFER_VALUE = 1 ton;
+    uint128 constant TOKEN_WALLET_DEPLOY_VALUE = 0.5 ever;
+    uint128 constant TOKEN_WALLET_DEPLOY_GRAMS_VALUE = 0.1 ever;
+    uint128 constant TOKEN_TRANSFER_VALUE = 1 ever;
+    uint128 constant CALLBACK_VALUE = 0.1 ever;
 
     // checks
     uint8 constant CHECK_WALLET_ADDR = 1;
 
     uint8 _checkList;
-    bool public _active = false;
+    bool _active = false;
 
-    address public _collection;
-    TvmCell public _codeNft;
+    address _collection;
+    TvmCell _codeNft;
 
-    address public _rewardTokenRoot;
-    address public _rewardTokenWallet;
-    uint128 public _rewardTokenWalletBalance;
+    address _rewardTokenRoot;
+    address _rewardTokenWallet;
+    uint128 _rewardTokenWalletBalance;
 
-    uint128 public _farmStartTime;
-    uint128 public _rewardPerSecond;
-    uint128 public _lockPeriod;
+    uint128 _farmStartTime;
+    uint128 _rewardPerSecond;
+    uint128 _lockPeriod;
 
-    uint128 public _lastRewardTime;
-    uint128 public _accRewardPerShare;
+    uint128 _lastRewardTime;
+    uint128 _accRewardPerShare;
 
-    mapping(address => Deposit) public _deposits;
-    mapping(address => uint128) public _balances;
+    mapping(address => Deposit) _deposits;
+    mapping(address => uint128) _balances;
 
     constructor(
         address collection,
@@ -126,10 +127,13 @@ contract NFTFarming is INftChangeManager, IAcceptTokensTransferCallback {
         }
 
         _updatePoolInfo();
-
-        _deposits[msg.sender] = Deposit(owner, sendGasTo, now);
-        if (!_balances.exists(owner)) {
-            _balances[owner] = 0;
+        if (_deposits.exists(msg.sender) && _decodeDepositPayload(payload)) {
+            delete _deposits[msg.sender];
+        } else {
+            _deposits[msg.sender] = Deposit(owner, sendGasTo, now);
+            if (!_balances.exists(owner)) {
+                _balances[owner] = 0;
+            }
         }
 
         sendGasTo.transfer({value: 0, flag: 128 + 2, bounce: false});
@@ -196,20 +200,39 @@ contract NFTFarming is INftChangeManager, IAcceptTokensTransferCallback {
         require (_deposits.exists(nft));
         require (_deposits[nft].startDepositTime + _lockPeriod < now);
         require (_deposits[nft].depositor == msg.sender);
-        require (msg.value >= TOKEN_TRANSFER_VALUE);
+        require (msg.value >= TOKEN_TRANSFER_VALUE + CALLBACK_VALUE);
         tvm.rawReserve(0, 4);
 
         _updatePoolInfo();
 
         Deposit deposit = _deposits[nft];
-        delete _deposits[nft];
 
         mapping(address => ITIP4_1NFT.CallbackParams) callbacks;
+        TvmCell payload = _encodeFinishDepositPayload();
+        callbacks[address(this)] = ITIP4_1NFT.CallbackParams(CALLBACK_VALUE, payload);
         ITIP4_1NFT(nft).changeManager{value: 0, flag: 128}(
             deposit.depositor,
             deposit.sendGasTo,
             callbacks
         );
+    }   
+
+    function _encodeFinishDepositPayload() internal virtual pure returns(TvmCell finishDepositPayload) {
+        TvmBuilder builder;
+        /// flag 'forComplete'
+        builder.store(true);
+        return builder.toCell();
+    }
+
+    function _decodeDepositPayload(TvmCell payload) internal virtual view returns(bool forComplete) {
+        // check if payload assembled correctly
+        TvmSlice slice = payload.toSlice();
+        // 1 bool
+        if (!slice.hasNBitsAndRefs(1, 0)) {
+            return (false);
+        }
+
+        forComplete = slice.decode(bool);
     }
 
     function withdrawReward(
