@@ -167,6 +167,8 @@
 		{"name":"_totalSupply","type":"uint128"},
 		{"name":"_json","type":"string"},
 		{"name":"_owner","type":"uint256"},
-		{"name":"_remainOnNft","type":"uint128"}
+		{"name":"_remainOnNft","type":"uint128"},
+		{"name":"_mintNftValue","type":"uint128"},
+		{"name":"_processingValue","type":"uint128"}
 	]
 }
