@@ -13,7 +13,6 @@ library CustomCollectionErrors {
     uint16 constant value_is_less_than_required = 103;
     uint16 constant sender_is_not_collection = 104;
     uint16 constant amount_is_zero = 105;
-    uint16 constant active_bulk_mint_process = 106;
 }
 
 contract Collection is TIP4_1Collection, TIP4_2Collection, OwnableExternal {
@@ -27,6 +26,8 @@ contract Collection is TIP4_1Collection, TIP4_2Collection, OwnableExternal {
     /// _remainOnNft - the number of crystals that will remain after the entire mint 
     /// process is completed on the Nft contract
     uint128 _remainOnNft = 0.3 ton;
+    uint128 _mintNftValue = _remainOnNft + 0.1 ton;
+    uint128 _processingValue = 0.1 ton;
 
     constructor(
         TvmCell codeNft, 
@@ -44,7 +45,7 @@ contract Collection is TIP4_1Collection, TIP4_2Collection, OwnableExternal {
 
     function bulkMintNft(uint32 amount) external view virtual {
         require(amount > 0, CustomCollectionErrors.amount_is_zero);
-        require(msg.value >= (_remainOnNft + 0.2 ton) * amount, CustomCollectionErrors.value_is_less_than_required);
+        require(msg.value >= (_mintNftValue + _processingValue) * amount, CustomCollectionErrors.value_is_less_than_required);
         tvm.rawReserve(0, 4);
         _invokeMint(msg.sender, amount, 0);
     }
@@ -55,7 +56,9 @@ contract Collection is TIP4_1Collection, TIP4_2Collection, OwnableExternal {
         uint32 currentIteration
     ) internal pure virtual {
         if(currentIteration < amount) {
-            Collection(address(this)).mintNft{value: 0.1 ton, flag: 1}(owner, amount, currentIteration);
+            Collection(address(this)).mintNft{value: 0, flag: 128}(owner, amount, currentIteration);
+        } else {
+            owner.transfer({value: 0, flag: 128, bounce: false});
         }
     }
 
@@ -65,7 +68,7 @@ contract Collection is TIP4_1Collection, TIP4_2Collection, OwnableExternal {
         uint32 currentIteration
     ) external virtual {
         require(msg.sender == address(this), CustomCollectionErrors.sender_is_not_collection);
-        tvm.rawReserve(_remainOnNft + 0.2 ton, 8 + 4);
+        tvm.rawReserve(0, 4);
         uint256 id = uint256(_totalSupply);
         _totalSupply++;
 
@@ -73,11 +76,11 @@ contract Collection is TIP4_1Collection, TIP4_2Collection, OwnableExternal {
         TvmCell stateNft = _buildNftState(codeNft, id);
         address nftAddr = new Nft{
             stateInit: stateNft,
-            value: 0,
-            flag: 128
+            value: _mintNftValue,
+            flag: 0
         }(
             owner,
-            address(this),
+            owner,
             _remainOnNft,
             getNftJson(id)
         ); 
