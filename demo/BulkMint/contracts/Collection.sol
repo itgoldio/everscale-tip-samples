@@ -12,9 +12,17 @@ import './Nft.sol';
 library CustomCollectionErrors {
     uint16 constant value_is_less_than_required = 103;
     uint16 constant sender_is_not_collection = 104;
+    uint16 constant amount_is_zero = 105;
+    uint16 constant active_bulk_mint_process = 106;
 }
 
 contract Collection is TIP4_1Collection, TIP4_2Collection, OwnableExternal {
+
+    /// ID_SEPARATOR_SLOT - a location slot of the insertion in the json template
+    uint32 constant ID_SEPARATOR_SLOT = 39;
+
+    /// JSON_TEMPLATE - json schema for an nft contract, modified during minting
+    string constant JSON_TEMPLATE = "{\"type\":\"Basic NFT\",\"name\":\"Uniq Item #\",\"description\":\"BulkMint NFT\",\"preview\":{\"source\":\"https://ipfs.grandbazar.io/ipfs/hash\",\"width\":24,\"height\":24,\"size\":240,\"format\":\"png\",\"mimetype\":\"image/png\"},\"files\":[{\"source\":\"https://ipfs.grandbazar.io/ipfs/hash\",\"width\":24,\"height\":24,\"size\":240,\"format\":\"png\",\"mimetype\":\"image/png\"}],\"external_url\":\"https://grandbazar.io/item/address\"}";
 
     /// _remainOnNft - the number of crystals that will remain after the entire mint 
     /// process is completed on the Nft contract
@@ -34,20 +42,30 @@ contract Collection is TIP4_1Collection, TIP4_2Collection, OwnableExternal {
         tvm.accept();
     }
 
-    function bulkMintNft(string[] jsons) external view virtual {
-        require(msg.value >= (_remainOnNft + 0.2 ton) * jsons.length, CustomCollectionErrors.value_is_less_than_required);
+    function bulkMintNft(uint32 amount) external view virtual {
+        require(amount > 0, CustomCollectionErrors.amount_is_zero);
+        require(msg.value >= (_remainOnNft + 0.2 ton) * amount, CustomCollectionErrors.value_is_less_than_required);
         tvm.rawReserve(0, 4);
-        for(string json : jsons){
-            Collection(address(this)).mintNft{value:_remainOnNft + 0.1 ton, flag: 0}(msg.sender, json);
+        _invokeMint(msg.sender, amount, 0);
+    }
+
+    function _invokeMint(
+        address owner,
+        uint32 amount,
+        uint32 currentIteration
+    ) internal pure virtual {
+        if(currentIteration < amount) {
+            Collection(address(this)).mintNft{value: 0.1 ton, flag: 1}(owner, amount, currentIteration);
         }
     }
 
     function mintNft(
         address owner,
-        string json
+        uint32 amount,
+        uint32 currentIteration
     ) external virtual {
         require(msg.sender == address(this), CustomCollectionErrors.sender_is_not_collection);
-        tvm.rawReserve(0, 4);
+        tvm.rawReserve(_remainOnNft + 0.2 ton, 8 + 4);
         uint256 id = uint256(_totalSupply);
         _totalSupply++;
 
@@ -59,9 +77,9 @@ contract Collection is TIP4_1Collection, TIP4_2Collection, OwnableExternal {
             flag: 128
         }(
             owner,
-            owner,
+            address(this),
             _remainOnNft,
-            json
+            getNftJson(id)
         ); 
 
         emit NftCreated(
@@ -71,6 +89,15 @@ contract Collection is TIP4_1Collection, TIP4_2Collection, OwnableExternal {
             owner, 
             owner
         );
+
+        currentIteration++;
+        _invokeMint(owner, amount, currentIteration);
+    }
+
+    function getNftJson(uint256 id) public pure returns(string json) {
+        string head = JSON_TEMPLATE.substr(0, ID_SEPARATOR_SLOT);
+        string tail = JSON_TEMPLATE.substr(ID_SEPARATOR_SLOT);
+        json = head + format("{}", id) + tail;
     }
 
     function setRemainOnNft(uint128 remainOnNft) external virtual onlyOwner {

@@ -16,7 +16,7 @@
 		{
 			"name": "bulkMintNft",
 			"inputs": [
-				{"name":"jsons","type":"string[]"}
+				{"name":"amount","type":"uint32"}
 			],
 			"outputs": [
 			]
@@ -25,9 +25,19 @@
 			"name": "mintNft",
 			"inputs": [
 				{"name":"owner","type":"address"},
-				{"name":"json","type":"string"}
+				{"name":"amount","type":"uint32"},
+				{"name":"currentIteration","type":"uint32"}
 			],
 			"outputs": [
+			]
+		},
+		{
+			"name": "getNftJson",
+			"inputs": [
+				{"name":"id","type":"uint256"}
+			],
+			"outputs": [
+				{"name":"json","type":"string"}
 			]
 		},
 		{
