@@ -40,4 +40,7 @@ TIP4_1Nft - это стандартный контракт, который ре�
     function transfer(address to, address sendGasTo, mapping(address => CallbackParams) callbacks) external;
 ```
 
-<h1></h1>
+<h1>Команды</h1>
+
+Используйте `npm run-script build` для сборки контрактов.
+Используйте `npm run-script deploy` для деплоя контрактов в локальном блокчейне.

@@ -21,4 +21,7 @@
     function receivePrize(uint128 winningAmount) external;
 ```
 
-<h1></h1>
+<h1>Команды</h1>
+
+Используйте `npm run-script build` для сборки контрактов.
+Используйте `npm run-script deploy` для деплоя контрактов в локальном блокчейне.
