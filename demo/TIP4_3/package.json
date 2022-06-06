@@ -3,11 +3,10 @@
   "version": "1.1.3",
   "description": "TIP4_3 demo",
   "scripts": {
-    "compile": "locklift build --config locklift.config.js",
-    "local": "locklift run --config locklift.config.js --network local --script scripts/1-deploy-collection.js",
-    "dev": "echo \"Error: no test specified\" && exit 1"
+    "build": "locklift build --config locklift.config.js",
+    "deploy": "locklift run --config locklift.config.js --network local --script scripts/1-deploy-collection.js"
   },
-  "author": "",
+  "author": "itgold.io",
   "license": "MIT",
   "dependencies": {
     "@itgold/everscale-tip": "^1.1.3",
