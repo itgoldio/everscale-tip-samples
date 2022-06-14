@@ -4,16 +4,17 @@ pragma AbiHeader expire;
 pragma AbiHeader time;
 pragma AbiHeader pubkey;
 
-
 import 'broxus-ton-tokens-contracts/contracts/interfaces/ITokenRoot.sol';
 import 'broxus-ton-tokens-contracts/contracts/interfaces/ITokenWallet.sol';
 import 'broxus-ton-tokens-contracts/contracts/interfaces/IAcceptTokensTransferCallback.sol';
 import '@itgold/everscale-tip/contracts/TIP4_1/interfaces/INftChangeManager.sol';
 import '@itgold/everscale-tip/contracts/TIP4_1/interfaces/ITIP4_1NFT.sol';
 import '@itgold/everscale-tip/contracts/TIP4_1/TIP4_1Nft.sol';
+import '@itgold/everscale-tip/contracts/access/OwnableInternal.sol';
+import 'abstract/Checks.sol';
 
 
-contract NFTFarming is INftChangeManager, IAcceptTokensTransferCallback {
+contract NFTFarming is INftChangeManager, IAcceptTokensTransferCallback, Checks, OwnableInternal {
 
     struct Deposit {
         address depositor;
@@ -30,7 +31,6 @@ contract NFTFarming is INftChangeManager, IAcceptTokensTransferCallback {
     // checks
     uint8 constant CHECK_WALLET_ADDR = 1;
 
-    uint8 _checkList;
     bool _active = false;
 
     address _collection;
@@ -47,20 +47,27 @@ contract NFTFarming is INftChangeManager, IAcceptTokensTransferCallback {
     uint128 _lastRewardTime;
     uint128 _accRewardPerShare;
 
-    mapping(address => Deposit) _deposits;
-    mapping(address => uint128) _balances;
+    uint128 public _depositsNum;
+    mapping(address => Deposit) public _deposits;
+    mapping(address => uint128) public _balances;
 
     constructor(
+        address owner,
         address collection,
         address rewardTokenRoot,
         TvmCell codeNft,
         uint128 lockPeriod,
         uint128 farmStartTime,
         uint128 rewardPerSecond
+    ) OwnableInternal (
+        owner
+    ) Checks( 
+        CHECK_WALLET_ADDR
     ) public {
         require(address(this).balance > TOKEN_WALLET_DEPLOY_VALUE);
         tvm.accept();
 
+        _depositsNum = 0;
         _collection = collection;
         _rewardTokenRoot = rewardTokenRoot;
         _codeNft = codeNft;
@@ -72,25 +79,15 @@ contract NFTFarming is INftChangeManager, IAcceptTokensTransferCallback {
     }
 
     function _setUp() internal virtual {
-        _createChecks();
-
         ITokenRoot(_rewardTokenRoot).deployWallet{value: TOKEN_WALLET_DEPLOY_VALUE, callback: NFTFarming.receiveTokenWalletAddress}(
             address(this),
             TOKEN_WALLET_DEPLOY_GRAMS_VALUE
         );
     }    
 
-    function _createChecks() internal {
-        _checkList = CHECK_WALLET_ADDR;
-    }
-
-    function _passCheck(uint8 check) internal {
+    function _passCheck(uint8 check) internal virtual override {
         _checkList &= ~check;
-        _isCheckListEmpty();
-    }
-
-    function _isCheckListEmpty() internal {
-        if  (_checkList == 0) {
+        if (_isCheckListEmpty()) {
             _active = true;
         }
     }
@@ -99,8 +96,7 @@ contract NFTFarming is INftChangeManager, IAcceptTokensTransferCallback {
         address wallet
     ) external virtual {
         require(msg.sender == _rewardTokenRoot);
-        // tvm.rawReserve(0, 4);
-
+        
         _rewardTokenWallet = wallet; 
         _passCheck(CHECK_WALLET_ADDR);
     }
@@ -116,9 +112,14 @@ contract NFTFarming is INftChangeManager, IAcceptTokensTransferCallback {
     ) external override {
         tvm.rawReserve(0, 4);
 
-        if (!_active || _collection != collection || _resolveNft(id, collection) != msg.sender) {
+        if (
+            !_active || 
+            _collection != collection || 
+            _resolveNft(id, collection) != msg.sender ||
+            (oldManager != address(this) && newManager != address(this))    
+        ) {
             mapping(address => ITIP4_1NFT.CallbackParams) callbacks;
-            ITIP4_1NFT(msg.sender).changeManager{value: 0, flag: 128}(
+            ITIP4_1NFT(msg.sender).changeManager{value: 0, flag: 128, bounce: false}(
                 oldManager,
                 sendGasTo,
                 callbacks
@@ -127,9 +128,11 @@ contract NFTFarming is INftChangeManager, IAcceptTokensTransferCallback {
         }
 
         _updatePoolInfo();
-        if (_deposits.exists(msg.sender) && _decodeDepositPayload(payload)) {
+        if (_deposits.exists(msg.sender) && oldManager == address(this)) {
+            _depositsNum--;
             delete _deposits[msg.sender];
         } else {
+            _depositsNum++;
             _deposits[msg.sender] = Deposit(owner, sendGasTo, now);
             if (!_balances.exists(owner)) {
                 _balances[owner] = 0;
@@ -167,7 +170,6 @@ contract NFTFarming is INftChangeManager, IAcceptTokensTransferCallback {
 
         _rewardTokenWalletBalance += amount;
 
-        _updatePoolInfo();
         remainingGasTo.transfer({value: 0, flag: 128 + 2});
     }
 
@@ -208,34 +210,16 @@ contract NFTFarming is INftChangeManager, IAcceptTokensTransferCallback {
         Deposit deposit = _deposits[nft];
 
         mapping(address => ITIP4_1NFT.CallbackParams) callbacks;
-        TvmCell payload = _encodeFinishDepositPayload();
-        callbacks[address(this)] = ITIP4_1NFT.CallbackParams(CALLBACK_VALUE, payload);
+        TvmCell emptyCell;
+        callbacks[address(this)] = ITIP4_1NFT.CallbackParams(CALLBACK_VALUE, emptyCell);
         ITIP4_1NFT(nft).changeManager{value: 0, flag: 128}(
             deposit.depositor,
             deposit.sendGasTo,
             callbacks
         );
     }   
-
-    function _encodeFinishDepositPayload() internal virtual pure returns(TvmCell finishDepositPayload) {
-        TvmBuilder builder;
-        /// flag 'forComplete'
-        builder.store(true);
-        return builder.toCell();
-    }
-
-    function _decodeDepositPayload(TvmCell payload) internal virtual view returns(bool forComplete) {
-        // check if payload assembled correctly
-        TvmSlice slice = payload.toSlice();
-        // 1 bool
-        if (!slice.hasNBitsAndRefs(1, 0)) {
-            return (false);
-        }
-
-        forComplete = slice.decode(bool);
-    }
-
-    function withdrawReward(
+    
+    function claimReward(
         uint128 amount
     ) external virtual {
         require (_balances.exists(msg.sender));
@@ -254,14 +238,6 @@ contract NFTFarming is INftChangeManager, IAcceptTokensTransferCallback {
         msg.sender.transfer({value: 0, flag: 128 + 2});
     }
 
-    function _getDepositsNum() internal virtual view returns(uint128) {
-        uint128 counter;
-        for ((address nft, Deposit deposit) : _deposits) {
-            counter++; 
-        }
-        return counter;
-    }
-
     function _updatePoolInfo() internal virtual {
         (uint128 lastRewardTime, uint128 accRewardPerShare) = calculateRewardData();
             
@@ -275,11 +251,15 @@ contract NFTFarming is INftChangeManager, IAcceptTokensTransferCallback {
 
     function _payReward() internal virtual {
         for ((address nft, Deposit deposit) : _deposits) {
+            if (!_balances.exists(deposit.depositor)) {
+                _balances[deposit.depositor] = 0;
+            }
             _balances[deposit.depositor] += _accRewardPerShare;
         }
+        _accRewardPerShare = 0;
     }
 
-    function calculateRewardData() public virtual responsible returns(uint128 lastRewardTime, uint128 accRewardPerShare) {
+    function calculateRewardData() public virtual view responsible returns(uint128 lastRewardTime, uint128 accRewardPerShare) {
         lastRewardTime = _lastRewardTime;
         accRewardPerShare = _accRewardPerShare;
     
@@ -294,18 +274,24 @@ contract NFTFarming is INftChangeManager, IAcceptTokensTransferCallback {
                 lastRewardTime = _farmStartTime;
             }
 
-            uint128 numOfDeposits = _getDepositsNum();
-            if (numOfDeposits > 0) {
+            if (_depositsNum > 0) {
                 uint128 reward = _rewardPerSecond * (now - lastRewardTime);
-                accRewardPerShare = reward / numOfDeposits;
-                lastRewardTime = now;
+                accRewardPerShare = reward / _depositsNum;
             }
+            lastRewardTime = now;
         }
 
         return {value: 0, flag: 64, bounce: false} (lastRewardTime, accRewardPerShare);
     }
 
+    function setRewardPerSecond(uint128 rewardPerSecond) external onlyOwner {
+        _updatePoolInfo();
+
+        _rewardPerSecond = rewardPerSecond;
+    }
+
     onBounce(TvmSlice slice) external virtual {
+        require(msg.sender == _rewardTokenRoot);
         tvm.accept();
 
         uint32 functionId = slice.decode(uint32);
@@ -342,11 +328,6 @@ contract NFTFarming is INftChangeManager, IAcceptTokensTransferCallback {
             _lastRewardTime,
             _accRewardPerShare
         );
-    }
-
-    modifier onlyActive() {
-        require(_active);
-        _;
     }
 
 }
