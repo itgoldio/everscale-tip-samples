@@ -27,7 +27,7 @@
 
 Адрес контракта фарминга в dev сети:
 ```
-0:cad207d94505be00391c3ba7dfc02e0e53a509afb03642811935f692cdca7f99
+0:fd8f2c8025aa14c3ed35ebc3b710aa8500001027bdc7114d51c0ccdf0452f7fd
 ```
 
 Адрес TIP4 Collection контракта в дев сети:
