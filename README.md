@@ -13,7 +13,7 @@
 
 <h1>Как использовать с помощью everdev?</h1>
 
-1. Установите everdev
+1. Установите everdev (https://github.com/tonlabs/everdev)
 
 `npm i -g everdev`
 
