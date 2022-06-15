@@ -12,12 +12,27 @@
 </ol>
 
 <h1>Как использовать с помощью everdev?</h1>
+
 1. Установите everdev
+
 `npm i -g everdev`
 
-npm i -g everdev
-everdev sol set --compiler 0.58.1
-everdev se start
-cd demo/StandartWebToken
-npm install
-npm run-script deploy
+2. Рекомендуем установить стабильную версию компилятора
+   
+`everdev sol set --compiler 0.58.1`
+
+3. Запустите локальную ноду
+   
+`everdev se start`
+
+4. Перейдите в директорию с нужным сэмплом (Например в StandartWebToken)
+   
+`cd demo/StandartWebToken`
+
+5. Выполните
+   
+`npm install`
+
+6. Запустите скрипт деплоя в локальную сеть
+   
+`npm run-script deploy`
