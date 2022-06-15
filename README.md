@@ -10,3 +10,14 @@
   <li><a href="/demo/Lottery">Lottery</a> - контракт, за основу которого взят standart web token с добавленной логикой получения случайного приза в токенах сети</li>
   <li><a href="/demo/BulkMint">Bulk mint</a> - контракт, за основу которого взят standart web token с добавленной логикой минтинга большого количества подобных nft за раз </li>
 </ol>
+
+<h1>Как использовать с помощью everdev?</h1>
+1. Установите everdev
+`npm i -g everdev`
+
+npm i -g everdev
+everdev sol set --compiler 0.58.1
+everdev se start
+cd demo/StandartWebToken
+npm install
+npm run-script deploy
