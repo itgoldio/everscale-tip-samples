@@ -21,18 +21,14 @@
    
 `everdev sol set --compiler 0.58.1`
 
-3. Запустите локальную ноду
-   
-`everdev se start`
-
-4. Перейдите в директорию с нужным сэмплом (Например в StandartWebToken)
+3. Перейдите в директорию с нужным сэмплом (Например в StandartWebToken)
    
 `cd demo/StandartWebToken`
 
-5. Выполните
+4. Выполните
    
 `npm install`
 
-6. Запустите скрипт деплоя в локальную сеть
+5. Запустите скрипт деплоя в локальную сеть
    
 `npm run-script deploy`
