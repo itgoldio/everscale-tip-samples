@@ -4,7 +4,7 @@
   "description": "TIP4_1 demo",
   "scripts": {
     "build": "locklift build --config locklift.config.js",
-    "deploy": "locklift run --config locklift.config.js --network local --script scripts/1-deploy-collection.js"
+    "deploy": "locklift run --config locklift.config.js --network devnet --script scripts/1-deploy-collection.js"
   },
   "author": "itgold.io",
   "license": "MIT",

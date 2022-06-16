@@ -4,8 +4,7 @@
   "description": "BulkMint demo",
   "scripts": {
     "compile": "locklift build --config locklift.config.js",
-    "deploy_localhost": "locklift run --config locklift.config.js --network local --script scripts/1-deploy-collection.js",
-    "dev": "echo \"Error: no test specified\" && exit 1"
+    "deploy": "locklift run --config locklift.config.js --network devnet --script scripts/1-deploy-collection.js",
   },
   "author": "",
   "license": "MIT",
