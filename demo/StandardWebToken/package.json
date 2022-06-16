@@ -1,7 +1,7 @@
 {
-  "name": "standart_web_token",
+  "name": "standard_web_token",
   "version": "1.1.3",
-  "description": "Standart web token demo",
+  "description": "Standard web token demo",
   "scripts": {
     "build": "locklift build --config locklift.config.js",
     "deploy": "locklift run --config locklift.config.js --network devnet --script scripts/1-deploy-collection.js"
