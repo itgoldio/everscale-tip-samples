@@ -6,9 +6,9 @@
   <li><a href="/demo/TIP4_1">TIP4_1</a> - базовый контракт, содержащий основные методы TIP4</li>
   <li><a href="/demo/TIP4_2">TIP4_2</a> - контракт, наследующий базовый контракт TIP4_1 и TIP4_2 (JSON)</li>
   <li><a href="/demo/TIP4_3">TIP4_3</a> - контракт, наследующий базовый контракт TIP4_1 и TIP4_3 (Работа с индексами)</li>
-  <li><a href="/demo/StandartWebToken">Standart web token</a> - контракт, наследующий базовый контракт TIP4_1 TIP4_2 и TIP4_3</li>
-  <li><a href="/demo/Lottery">Lottery</a> - контракт, за основу которого взят standart web token с добавленной логикой получения случайного приза в токенах сети</li>
-  <li><a href="/demo/BulkMint">Bulk mint</a> - контракт, за основу которого взят standart web token с добавленной логикой минтинга большого количества подобных nft за раз </li>
+  <li><a href="/demo/StandardWebToken">Standard web token</a> - контракт, наследующий базовый контракт TIP4_1 TIP4_2 и TIP4_3</li>
+  <li><a href="/demo/Lottery">Lottery</a> - контракт, за основу которого взят standard web token с добавленной логикой получения случайного приза в токенах сети</li>
+  <li><a href="/demo/BulkMint">Bulk mint</a> - контракт, за основу которого взят standard web token с добавленной логикой минтинга большого количества подобных nft за раз </li>
 </ol>
 
 <h1>Как использовать с помощью everdev?</h1>
@@ -21,9 +21,9 @@
    
 `everdev sol set --compiler 0.58.1`
 
-3. Перейдите в директорию с нужным сэмплом (Например в StandartWebToken)
+3. Перейдите в директорию с нужным сэмплом (Например в StandardWebToken)
    
-`cd demo/StandartWebToken`
+`cd demo/StandardWebToken`
 
 4. Выполните
    
