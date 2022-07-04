@@ -1,0 +1,15 @@
+{
+  "name": "nft_auth_debot",
+  "version": "1.0.0",
+  "description": "NFT Auth Debot",
+  "scripts": {
+    "build": "locklift build --config locklift.config.js",
+    "deploy": "locklift run --config locklift.config.js --network local --script scripts/1-deploy-debot.js"
+  },
+  "author": "itgold.io",
+  "license": "MIT",
+  "dependencies": {
+    "@itgold/everscale-tip": "^1.1.3",
+    "locklift": "git+https://github.com/broxus/ton-locklift.git"
+  }
+}
