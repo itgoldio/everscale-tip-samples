@@ -29,6 +29,6 @@ NFT samples for [TIP4 standard](https://docs.everscale.network/standard/TIP-4) f
    
 `npm install`
 
-5. Deploy NFT to (devnet)[https://net.ever.live/]
+5. Deploy NFT to [devnet](https://net.ever.live/)
    
 `npm run-script deploy`
