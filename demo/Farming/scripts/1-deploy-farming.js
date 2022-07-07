@@ -1,15 +1,66 @@
+const {
+  isValidTonAddress
+} = require('./utils');
+const prompts = require('prompts');
+
 async function main() {
+
+  const promptsData = [];
+
+  promptsData.push({
+    type: 'text',
+    name: 'collection',
+    message: 'Collection address',
+    validate: value => isValidTonAddress(value) ? true : 'Invalid TON address'
+  });
+
+  promptsData.push({
+    type: 'text',
+    name: 'rewardTokenRoot',
+    message: 'RewardTokenRoot (TIP3 Root) address',
+    validate: value => isValidTonAddress(value) ? true : 'Invalid TON address'
+  });
+
+  promptsData.push({
+    type: 'text',
+    name: 'lockPeriod',
+    message: 'Lock period',
+    validate: value => !!value
+  });
+
+  promptsData.push({
+    type: 'text',
+    name: 'farmStartTime',
+    message: 'Farm start time',
+    validate: value => !!value
+  });
+
+  promptsData.push({
+    type: 'text',
+    name: 'rewardPerSecond',
+    message: 'Reward per second',
+    validate: value => !!value
+  });
+
+  promptsData.push({
+    type: 'text',
+    name: 'owner',
+    message: 'Owner address',
+    validate: value => isValidTonAddress(value) ? true : 'Invalid TON address'
+  });
+
   const Farming = await locklift.factory.getContract('NFTFarming');
   const Nft = await locklift.factory.getContract('Nft');
   const [keyPair] = await locklift.keys.getKeyPairs();
 
+  const response = await prompts(promptsData);
 
-  const collection = "0:379d50a829c0a8c080cab108aec4bbdd7ddfe9734b99cf892e02c005ffa6758e";
-  const rewardTokenRoot = "0:afaf99f73266c86f4ff57354568801af39c3921999a29f2240c1daaaa7478264";
-  const lockPeriod = 300;
-  const farmStartTime = 1653947832;
-  const rewardPerSecond = 100000;
-  const owner = "0:488921925e7f2d103ba1fd0af0552f180ea94ce0df7b6f82eed69d27e7882106";
+  const collection = response.collection;
+  const rewardTokenRoot = response.rewardTokenRoot;
+  const lockPeriod = response.lockPeriod;
+  const farmStartTime = response.farmStartTime;
+  const rewardPerSecond = response.rewardPerSecond;
+  const owner = response.owner;
 
   const farming = await locklift.giver.deployContract({
     contract: Farming,
