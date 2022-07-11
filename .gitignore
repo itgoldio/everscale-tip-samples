@@ -3,5 +3,7 @@
 # Dependency directory
 node_modules/
 
+locklift.config.js
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
