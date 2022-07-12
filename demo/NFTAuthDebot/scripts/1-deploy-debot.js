@@ -28,7 +28,7 @@ async function main() {
 
   const ownerPubkey = response.ownerPubkey;
   const collection = response.collection;
-  const nftIndexHelper = "0:4a6c2af0bcf6ca365ce7d63f55690ef300d1272d717983fc39a7603a5cde4365";
+  const nftIndexHelper = "0:b5c6d8226ebf452d2dbb1e6f957347fedaa5c3ac93fd8250ee6899a660c0297b";
   const nftList = [];
 
   const debot = await locklift.giver.deployContract({
