@@ -1,0 +1,11 @@
+*.code
+
+# Dependency directory
+node_modules/
+
+locklift.config.ts
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+
+.prettierrc
