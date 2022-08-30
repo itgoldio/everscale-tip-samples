@@ -139,6 +139,24 @@
 			]
 		},
 		{
+			"name": "getInfo",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"active","type":"bool"},
+				{"name":"totalDeposits","type":"uint128"},
+				{"name":"farmStartTime","type":"uint32"},
+				{"name":"farmEndTime","type":"uint32"},
+				{"name":"rewardPerSecond","type":"uint128"},
+				{"name":"lastRewardTime","type":"uint32"},
+				{"name":"accRewardPerShare","type":"uint256"},
+				{"name":"unclaimedReward","type":"uint128"},
+				{"name":"vestingPeriod","type":"uint32"},
+				{"name":"vestingRatio","type":"uint32"}
+			]
+		},
+		{
 			"name": "dummy",
 			"inputs": [
 				{"name":"user_wallet","type":"address"}

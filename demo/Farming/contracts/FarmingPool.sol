@@ -1,4 +1,4 @@
-pragma ton-solidity >= 0.58.1;
+pragma ever-solidity >= 0.58.1;
 
 pragma AbiHeader expire;
 pragma AbiHeader time;
@@ -32,7 +32,7 @@ contract FarmingPool is IFarmingPool, INftChangeManager, IAcceptTokensTransferCa
     uint128 constant CALLBACK_VALUE = 0.1 ever;
     uint128 constant SET_END_TIME_VALUE = 0.5 ever;
     uint128 constant MIN_CALL_MSG_VALUE = 1 ever;
-    uint128 constant INCREASE_DEBT_VALUE = 0.3 ever;
+    uint128 constant INCREASE_DEBTf_VALUE = 0.3 ever;
     uint128 constant USER_DATA_DEPLOY_VALUE = 0.5 ever;
 
     uint32 constant MAX_UINT32 = 0xFFFFFFFF;
@@ -99,6 +99,7 @@ contract FarmingPool is IFarmingPool, INftChangeManager, IAcceptTokensTransferCa
     ) public {
         require(address(this).balance > TOKEN_WALLET_DEPLOY_VALUE);
 
+        tvm.accept();
         _collection = collection;
         _rewardTokenRoot = rewardTokenRoot;
         _codeNft = codeNft;
@@ -445,6 +446,36 @@ contract FarmingPool is IFarmingPool, INftChangeManager, IAcceptTokensTransferCa
         );
     }
 
+    function getInfo() public view responsible returns(
+        bool active,
+        uint128 totalDeposits,
+        uint32 farmStartTime,
+        uint32 farmEndTime,
+        uint128 rewardPerSecond,
+        uint32 lastRewardTime,
+        uint256 accRewardPerShare,
+        uint128 unclaimedReward,
+        uint32 vestingPeriod,
+        uint32 vestingRatio
+    ) {
+        return{
+            value: 0,
+            flag: 64,
+            bounce: false
+        }( 
+            _active,
+            _totalDeposits,
+            _farmStartTime,
+            _farmEndTime,
+            _rewardPerSecond,
+            _lastRewardTime,
+            _accRewardPerShare,
+            _unclaimedReward,
+            _vestingPeriod,
+            _vestingRatio
+        );
+    }
+
     onBounce(TvmSlice slice) external virtual {
         tvm.accept();
 
@@ -466,5 +497,4 @@ contract FarmingPool is IFarmingPool, INftChangeManager, IAcceptTokensTransferCa
     }
 
     function dummy(address user_wallet) external view virtual { tvm.rawReserve(0, 4); }
-
 }

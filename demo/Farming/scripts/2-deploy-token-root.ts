@@ -23,6 +23,13 @@ async function main() {
 
     promptsData.push({
         type: 'text',
+        name: 'name',
+        message: 'Name',
+        validate: value => !!value
+    });
+
+    promptsData.push({
+        type: 'text',
         name: 'symbol',
         message: 'Symbol',
         validate: value => !!value
@@ -100,11 +107,6 @@ async function main() {
 
     let keyPair = (await locklift.keystore.getSigner("0"))!;
     let TokenWallet = await locklift.factory.getContractArtifacts('TokenWallet'); 
-    console.log(initialSupplyTo);
-    console.log(disableMint);
-    console.log(disableBurnByRoot);
-    console.log(pauseBurn);
-    console.log(zeroAddress);
     const { contract: tokenRoot, tx } = await locklift.factory.deployContract({
         contract: "TokenRoot",
         publicKey: keyPair.publicKey,
@@ -112,12 +114,9 @@ async function main() {
             initialSupplyTo: new Address(initialSupplyTo),
             initialSupply: new BigNumber(initialSupply).shiftedBy(decimals).toFixed(),
             deployWalletValue: locklift.utils.toNano(0.1),
-            // mintDisabled: disableMint,
-            mintDisabled: "false",
-            // burnByRootDisabled: disableBurnByRoot,
-            burnByRootDisabled: "true",
+            mintDisabled: disableMint,
+            burnByRootDisabled: disableBurnByRoot,
             burnPaused: pauseBurn,
-            burnPaused: "false",
             remainingGasTo: new Address(zeroAddress)
         },
         initParams: {
