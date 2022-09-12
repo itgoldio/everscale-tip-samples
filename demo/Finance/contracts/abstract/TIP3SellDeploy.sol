@@ -1,4 +1,4 @@
-pragma ton-solidity >= 0.58.1;
+pragma ton-solidity ^0.58.1;
 
 import "../TIP3Sell.sol";
 

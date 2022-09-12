@@ -1,4 +1,4 @@
-pragma ton-solidity >= 0.58.1;
+pragma ton-solidity ^0.58.1;
 
 pragma AbiHeader expire;
 pragma AbiHeader time;
@@ -6,15 +6,16 @@ pragma AbiHeader pubkey;
 
 import "@itgold/everscale-tip/contracts/access/OwnableExternal.sol";
 import "@itgold/everscale-tip/contracts/TIP4_1/interfaces/INftChangeManager.sol";
-import "@itgold/everscale-tip/contracts/TIP4_1/TIP4_1NFT.sol";
-import "./abstract/TIP3Helper.sol";
+import "@itgold/everscale-tip/contracts/TIP4_1/TIP4_1Nft.sol";
+import "./interfaces/ITIP3SellRoot.sol";
+import "./abstract/TIP3SellDeploy.sol";
 
 /// @notice Object for pendings TIP3Sell
 struct PendingOffer {
-    address nft,
-    address owner,
-    address sendGasTo,
-    uint128 price
+    address nft;
+    address owner;
+    address sendGasTo;
+    uint128 price;
 }
 
 /// @notice Library with IP3SellRoot gas constants
@@ -26,8 +27,9 @@ library TIP3SellRootGas {
 }
 
 contract TIP3SellRoot is 
+    ITIP3SellRoot,
     OwnableExternal,
-    TIP3Helper
+    TIP3SellDeploy,
     INftChangeManager
 {
 
@@ -47,10 +49,10 @@ contract TIP3SellRoot is
     constructor(
         uint256 ownerPubkey,
         address tip3TokenRoot,
-        TvmCelll tip3SellCode
+        TvmCell tip3SellCode
     ) 
     OwnableExternal(ownerPubkey)
-    TIP3Helper(tip3SellCode)
+    TIP3SellDeploy(tip3SellCode)
     public {
         tvm.accept();
         _tip3TokenRoot = tip3TokenRoot;
@@ -65,14 +67,14 @@ contract TIP3SellRoot is
         address sendGasTo,
         uint128 price
     ) external override responsible view returns(TvmCell) {
-        mapping(address => CallbackParams) callbacks;
+        mapping(address => ITIP4_1NFT.CallbackParams) callbacks;
         
         /// @dev Create custom payload for stored `price`
         TvmBuilder payload;
         payload.store(price);
 
         /// @dev Create callback from NFT
-        callbacks[address.this] = CallbackParams(
+        callbacks[address(this)] = ITIP4_1NFT.CallbackParams(
             TIP3SellRootGas.MIN_PROCESSING_GAS +
             TIP3SellRootGas.CHANGE_MANAGER_GAS,
             payload.toCell()
@@ -88,7 +90,7 @@ contract TIP3SellRoot is
                 address(this),
                 sendGasTo,
                 callbacks
-            );
+            )
         );
     }
 
@@ -108,7 +110,7 @@ contract TIP3SellRoot is
         address collection, 
         address sendGasTo, 
         TvmCell payload
-    ) external {
+    ) external override {
         tvm.rawReserve(0, 4);
         if(newManager == address(this)) {
             if(msg.value >= TIP3SellRootGas.MIN_PROCESSING_GAS) {
@@ -117,7 +119,7 @@ contract TIP3SellRoot is
                 (uint128 price) = payload.toSlice().decode(uint128);
 
                 /// @dev Save offer data to map
-                _m_pending_offers[_resolveSell(msg.sender)] = (
+                _m_pending_offers[_resolveSell(msg.sender)] = PendingOffer(
                     msg.sender,
                     owner,
                     sendGasTo,
@@ -136,7 +138,7 @@ contract TIP3SellRoot is
             }
             /// @dev Return manager to owner of NFT
             else {
-                mapping(address => CallbackParams) callbacks;
+                mapping(address => ITIP4_1NFT.CallbackParams) callbacks;
                 ITIP4_1NFT(msg.sender).changeManager{
                     value: 0,
                     flag: 128,
@@ -163,12 +165,12 @@ contract TIP3SellRoot is
     function changeManagerToSell(
         address nft,
         address sendGasTo
-    ) external {
+    ) external override {
         tvm.rawReserve(0, 4);
         if(_m_pending_offers.exists(_resolveSell(msg.sender))) {
-            mapping(address => CallbackParams) callbacks;
+            mapping(address => ITIP4_1NFT.CallbackParams) callbacks;
             TvmCell empty;
-            callbacks[msg.sender] = CallbackParams(
+            callbacks[msg.sender] = ITIP4_1NFT.CallbackParams(
                 TIP3SellRootGas.CHANGE_MANAGER_GAS,
                 empty
             );

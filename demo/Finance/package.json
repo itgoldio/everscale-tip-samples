@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "test": "npx locklift test --network local",
-    "deploy_token_root": "npx locklift run --network local --script scripts/deploy_token_root.ts --disable-build",
+    "deploy_sell_root": "npx locklift run --network local --script scripts/deploy_sell_root.ts --disable-build",
     "deploy_wallet": "npx locklift run --network local --script scripts/deploy_wallet.ts --disable-build"
   },
   "author": "",

@@ -6,9 +6,73 @@
 		{
 			"name": "constructor",
 			"inputs": [
-				{"name":"ownerPubkey","type":"uint256"}
+				{"name":"ownerPubkey","type":"uint256"},
+				{"name":"tip3TokenRoot","type":"address"},
+				{"name":"tip3SellCode","type":"cell"}
 			],
 			"outputs": [
+			]
+		},
+		{
+			"name": "buildSellMsg",
+			"inputs": [
+				{"name":"answerId","type":"uint32"},
+				{"name":"sendGasTo","type":"address"},
+				{"name":"price","type":"uint128"}
+			],
+			"outputs": [
+				{"name":"value0","type":"cell"}
+			]
+		},
+		{
+			"name": "onNftChangeManager",
+			"inputs": [
+				{"name":"id","type":"uint256"},
+				{"name":"owner","type":"address"},
+				{"name":"oldManager","type":"address"},
+				{"name":"newManager","type":"address"},
+				{"name":"collection","type":"address"},
+				{"name":"sendGasTo","type":"address"},
+				{"name":"payload","type":"cell"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "changeManagerToSell",
+			"inputs": [
+				{"name":"nft","type":"address"},
+				{"name":"sendGasTo","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "sellCode",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"value0","type":"cell"}
+			]
+		},
+		{
+			"name": "sellCodeHash",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"value0","type":"uint256"}
+			]
+		},
+		{
+			"name": "sellAddress",
+			"inputs": [
+				{"name":"answerId","type":"uint32"},
+				{"name":"nft","type":"address"}
+			],
+			"outputs": [
+				{"name":"value0","type":"address"}
 			]
 		},
 		{
@@ -47,6 +111,9 @@
 		{"name":"_timestamp","type":"uint64"},
 		{"name":"_constructorFlag","type":"bool"},
 		{"name":"_owner","type":"uint256"},
-		{"name":"_m_tip3_tokens","type":"optional(cell)"}
+		{"name":"_tip3SellCode","type":"cell"},
+		{"name":"_tip3TokenRoot","type":"address"},
+		{"name":"_remainOnSell","type":"uint128"},
+		{"components":[{"name":"nft","type":"address"},{"name":"owner","type":"address"},{"name":"sendGasTo","type":"address"},{"name":"price","type":"uint128"}],"name":"_m_pending_offers","type":"map(address,tuple)"}
 	]
 }

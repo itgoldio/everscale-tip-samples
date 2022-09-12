@@ -1,22 +1,11 @@
 import ora from 'ora';
 import chalk from 'chalk';
-import prompts from 'prompts';
-import fs from 'fs';
-import { Address } from 'locklift/.';
 
 async function main() {
   console.clear();
   const spinner = ora();
   const signer = (await locklift.keystore.getSigner("0"))!;
-  const response = await prompts([
-    {
-        type: 'number',
-        name: 'deployValue',
-        message: 'Initial EVER\'s',
-        initial: 0
-    },
-  ]);
-  spinner.start(chalk.bold("Deploy Wallet"));
+  spinner.start("Deploy Wallet");
   try {
     const { contract: wallet, tx } = await locklift.factory.deployContract({
       contract: "Wallet",
@@ -25,14 +14,16 @@ async function main() {
         _randomNonce: locklift.utils.getRandomNonce()
       },
       constructorParams: {},
-      value: locklift.utils.toNano(response.deployValue),
+      value: locklift.utils.toNano(1),
     });
   }
   catch(e) {
-    spinner.fail(chalk.bold.red(`Failed deploy\nexitCode: ${e.exitCode}`));
+    spinner.fail(chalk.red('Failed deploy'));
+    console.log(e);
   }
   const walletBalance = await locklift.provider.getBalance(wallet.address);
-  spinner.succeed(chalk.bold.green(`Wallet deployed at: ${wallet.address.toString()} (Balance: ${locklift.utils.fromNano(walletBalance)})`));
+  spinner.succeed(chalk.green(`Wallet deployed at: ${wallet.address.toString()} (Balance: ${locklift.utils.fromNano(walletBalance)})`));
+  console.log(tx);
 }
 
 main()

@@ -1,4 +1,4 @@
-pragma ton-solidity >= 0.58.1;
+pragma ton-solidity ^0.58.1;
 
 import "@itgold/everscale-tip/contracts/TIP4_1/interfaces/ITIP4_1NFT.sol";
 
@@ -12,7 +12,7 @@ interface ITIP3SellRoot {
     function buildSellMsg( 
         address sendGasTo,
         uint128 price
-    ) external override responsible view returns(TvmCell);
+    ) external responsible view returns(TvmCell);
 
     /// @notice Send message to NFT for change manager to TIP3Sell
     /// @param nft Address of NFT

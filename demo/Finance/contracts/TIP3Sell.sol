@@ -1,4 +1,4 @@
-pragma ton-solidity >= 0.58.1;
+pragma ton-solidity ^0.58.1;
 
 pragma AbiHeader expire;
 pragma AbiHeader time;
@@ -9,8 +9,9 @@ import "@itgold/everscale-tip/contracts/TIP4_1/interfaces/INftTransfer.sol";
 import "@itgold/everscale-tip/contracts/TIP4_1/interfaces/ITIP4_1NFT.sol";
 import "broxus-ton-tokens-contracts/contracts/interfaces/IAcceptTokensTransferCallback.sol";
 import "broxus-ton-tokens-contracts/contracts/interfaces/ITokenWallet.sol";
+import "broxus-ton-tokens-contracts/contracts/interfaces/ITokenRoot.sol";
+import "broxus-ton-tokens-contracts/contracts/interfaces/ITokenWallet.sol";
 import "./interfaces/ITIP3SellRoot.sol";
-import "./abstract/TIP3Helper.sol";
 import "./abstract/Checks.sol";
 
 /// @notice Library with gas constants
@@ -33,10 +34,7 @@ library TIP3SellChecks {
     uint8 constant CHECK_SELL_IS_MANGER = 4;
 }
 
-contract TIP3Sell is
-    INftChangeManager,
-    INftTransfer,
-    TIP3Helper, 
+contract TIP3Sell is 
     Checks,
     IAcceptTokensTransferCallback
 {
@@ -104,15 +102,15 @@ contract TIP3Sell is
         _remainOnSell = remainOnSell;
         _price = price;
 
-        function () callbackFunction;
-        callbackFunction = onDeployTIP3SellWallet;
-
         /// @dev Deploy TIP3 token wallet for this TIP3Sell contract
-        _deployTIP3Wallet(
-            _tip3TokenRoot,
+        ITokenRoot(_tip3TokenRoot).deployWallet{
+            value: 0,
+            flag: 128,
+            callback: TIP3Sell.onDeployTIP3SellWallet,
+            bounce: true
+        }(
             address(this),
-            TIP3SellGas.DEPLOY_TIP3_WALLET_GAS,
-            callbackFunction
+            TIP3SellGas.DEPLOY_TIP3_WALLET_GAS
         );
     }
 
@@ -126,11 +124,14 @@ contract TIP3Sell is
         _passCheck(TIP3SellChecks.CHECK_SELL_TIP3_WALLET);
 
         /// @dev Deploy TIP3 token wallet for vendor (onwer of NFT)
-        _deployTIP3Wallet(
-            _tip3TokenRoot,
+        ITokenRoot(_tip3TokenRoot).deployWallet{
+            value: 0,
+            flag: 128,
+            callback: TIP3Sell.onDeployTIP3VendorWallet,
+            bounce: true
+        }(
             _owner,
-            TIP3SellGas.DEPLOY_TIP3_WALLET_GAS,
-            tvm.functionId(onDeployTIP3VendorWallet)
+            TIP3SellGas.DEPLOY_TIP3_WALLET_GAS
         );
     }
 
@@ -162,7 +163,7 @@ contract TIP3Sell is
         address collection, 
         address sendGasTo, 
         TvmCell payload
-    ) external override {
+    ) external {
         require(msg.sender == _nft);
         tvm.rawReserve(_remainOnSell, 0);
         if(
@@ -210,14 +211,14 @@ contract TIP3Sell is
             msg.value >= TIP3SellGas.CONFIRM_OFFER_GAS &&
             _tip3TokenRoot == tokenRoot
         ) {
-            mapping(address => CallbackParams) callbacks;
+            mapping(address => ITIP4_1NFT.CallbackParams) callbacks;
             TvmCell empty;
             _tip3VendorWallet = senderWallet;
-            callbacks[msg.sender] = CallbackParams(
+            callbacks[msg.sender] = ITIP4_1NFT.CallbackParams(
                 TIP3SellGas.NFT_TRANSFER_GAS,
                 empty
             );
-            ITIP4_1NFT.transfer{
+            ITIP4_1NFT(_nft).transfer{
                 value: 0,
                 flag: 128,
                 bounce: true
@@ -261,7 +262,7 @@ contract TIP3Sell is
         address collection,
         address gasReceiver,
         TvmCell payload
-    ) external override {
+    ) external {
         require(msg.sender == _nft);
         tvm.rawReserve(0, 4);
         if(_tip3VendorWallet == newOwner) {
@@ -271,15 +272,15 @@ contract TIP3Sell is
                 flag: 128,
                 bounce: false
             }(
-                amount,
+                _price,
                 _tip3VendorWallet,
-                sendGasTo,
+                _sendGasTo,
                 true,
                 empty
             );
         }
         else {
-            sendGasTo.transfer({
+            _sendGasTo.transfer({
                 value: 0,
                 flag: 128,
                 bounce: false
