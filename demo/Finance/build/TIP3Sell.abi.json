@@ -72,6 +72,23 @@
 			],
 			"outputs": [
 			]
+		},
+		{
+			"name": "getInfo",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"nft","type":"address"},
+				{"name":"tip3TokenRoot","type":"address"},
+				{"name":"tip3SellRoot","type":"address"},
+				{"name":"tip3VendorWallet","type":"address"},
+				{"name":"tip3SellWallet","type":"address"},
+				{"name":"owner","type":"address"},
+				{"name":"sendGasTo","type":"address"},
+				{"name":"remainOnSell","type":"uint128"},
+				{"name":"price","type":"uint128"}
+			]
 		}
 	],
 	"data": [

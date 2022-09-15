@@ -92,7 +92,7 @@ contract TIP3Sell is
         optional(TvmCell) optSalt = tvm.codeSalt(tvm.code());
         require(optSalt.hasValue());
         (address tip3SellRoot) = optSalt.get().toSlice().decode(address);
-
+        require(msg.sender == tip3SellRoot);
         tvm.rawReserve(0, 4);
 
         _tip3TokenRoot = tip3TokenRoot;
@@ -300,6 +300,34 @@ contract TIP3Sell is
                 _sendGasTo
             );
         }
+    }
+
+    function getInfo() external view responsible returns (
+        address nft,
+        address tip3TokenRoot,
+        address tip3SellRoot,
+        address tip3VendorWallet,
+        address tip3SellWallet,
+        address owner,
+        address sendGasTo,
+        uint128 remainOnSell,
+        uint128 price
+    ) {
+        return{
+            value: 0,
+            flag: 64,
+            bounce: false
+        }(
+            _nft,
+            _tip3TokenRoot,
+            _tip3SellRoot,
+            _tip3VendorWallet,
+            _tip3SellWallet,
+            _owner,
+            _sendGasTo,
+            _remainOnSell,
+            _price
+        );
     }
 
 }

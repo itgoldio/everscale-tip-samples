@@ -167,7 +167,7 @@ contract TIP3SellRoot is
         address sendGasTo
     ) external override {
         tvm.rawReserve(0, 4);
-        if(_m_pending_offers.exists(_resolveSell(msg.sender))) {
+        if(_m_pending_offers.exists(_resolveSell(nft))) {
             mapping(address => ITIP4_1NFT.CallbackParams) callbacks;
             TvmCell empty;
             callbacks[msg.sender] = ITIP4_1NFT.CallbackParams(
