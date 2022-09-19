@@ -48,6 +48,16 @@
 			]
 		},
 		{
+			"name": "getInfo",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"tip3TokenRoot","type":"address"},
+				{"components":[{"name":"nft","type":"address"},{"name":"owner","type":"address"},{"name":"sendGasTo","type":"address"},{"name":"price","type":"uint128"}],"name":"m_pending_offers","type":"map(address,tuple)"}
+			]
+		},
+		{
 			"name": "getGasPrice",
 			"inputs": [
 				{"name":"answerId","type":"uint32"}

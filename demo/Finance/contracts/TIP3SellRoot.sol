@@ -198,6 +198,20 @@ contract TIP3SellRoot is
         }
     }
 
+    function getInfo() external responsible view returns(
+        address tip3TokenRoot,
+        mapping(address=>PendingOffer) m_pending_offers
+    ) {
+        return{
+            value: 0,
+            flag: 64,
+            bounce: false
+        }(
+            _tip3TokenRoot,
+            _m_pending_offers
+        );
+    }
+
     function getGasPrice() public responsible view returns(
         uint128 totalPrice,
         uint128 processingPrice,
@@ -208,7 +222,7 @@ contract TIP3SellRoot is
         return{
             value: 0,
             flag: 64,
-            bounce: true
+            bounce: false
         }(
         (
             TIP3SellRootGas.PROCESSING_GAS +

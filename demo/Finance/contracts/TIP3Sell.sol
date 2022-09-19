@@ -426,7 +426,7 @@ contract TIP3Sell is
         return{
             value: 0,
             flag: 64,
-            bounce: true
+            bounce: false
         }(
             (
                 TIP3SellGas.NFT_TRANSFER_GAS +

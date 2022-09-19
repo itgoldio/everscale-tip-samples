@@ -24,7 +24,7 @@ abstract contract Status {
         return{
             value: 0, 
             flag: 64,
-            bounce: true
+            bounce: false
         }(StatusType(_status));
     }
 
