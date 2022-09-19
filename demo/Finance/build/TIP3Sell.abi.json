@@ -10,7 +10,8 @@
 				{"name":"owner","type":"address"},
 				{"name":"sendGasTo","type":"address"},
 				{"name":"remainOnSell","type":"uint128"},
-				{"name":"price","type":"uint128"}
+				{"name":"price","type":"uint128"},
+				{"name":"deployTIP3WalletValue","type":"uint128"}
 			],
 			"outputs": [
 			]
@@ -27,6 +28,14 @@
 			"name": "onDeployTIP3VendorWallet",
 			"inputs": [
 				{"name":"tip3Wallet","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "declineSell",
+			"inputs": [
+				{"name":"sendGasTo","type":"address"}
 			],
 			"outputs": [
 			]
@@ -87,7 +96,29 @@
 				{"name":"owner","type":"address"},
 				{"name":"sendGasTo","type":"address"},
 				{"name":"remainOnSell","type":"uint128"},
-				{"name":"price","type":"uint128"}
+				{"name":"price","type":"uint128"},
+				{"name":"status","type":"uint8"}
+			]
+		},
+		{
+			"name": "getGasPrice",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"confirmSellPrice","type":"uint128"},
+				{"name":"cancelSellPrice","type":"uint128"},
+				{"name":"transferNftPrice","type":"uint128"},
+				{"name":"processingPrice","type":"uint128"}
+			]
+		},
+		{
+			"name": "getStatusType",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"value0","type":"uint8"}
 			]
 		}
 	],
@@ -101,6 +132,7 @@
 		{"name":"_timestamp","type":"uint64"},
 		{"name":"_constructorFlag","type":"bool"},
 		{"name":"_checkList","type":"uint8"},
+		{"name":"_status","type":"uint8"},
 		{"name":"_nft","type":"address"},
 		{"name":"_tip3TokenRoot","type":"address"},
 		{"name":"_tip3SellRoot","type":"address"},
@@ -109,6 +141,7 @@
 		{"name":"_owner","type":"address"},
 		{"name":"_sendGasTo","type":"address"},
 		{"name":"_remainOnSell","type":"uint128"},
-		{"name":"_price","type":"uint128"}
+		{"name":"_price","type":"uint128"},
+		{"name":"_deployTIP3WalletValue","type":"uint128"}
 	]
 }

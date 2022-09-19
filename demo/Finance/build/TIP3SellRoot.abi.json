@@ -48,6 +48,19 @@
 			]
 		},
 		{
+			"name": "getGasPrice",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"totalPrice","type":"uint128"},
+				{"name":"processingPrice","type":"uint128"},
+				{"name":"deployTIP3WalletPrice","type":"uint128"},
+				{"name":"changeNftManagerPrice","type":"uint128"},
+				{"name":"remainOnSell","type":"uint128"}
+			]
+		},
+		{
 			"name": "sellCode",
 			"inputs": [
 				{"name":"answerId","type":"uint32"}
@@ -113,7 +126,6 @@
 		{"name":"_owner","type":"uint256"},
 		{"name":"_tip3SellCode","type":"cell"},
 		{"name":"_tip3TokenRoot","type":"address"},
-		{"name":"_remainOnSell","type":"uint128"},
 		{"components":[{"name":"nft","type":"address"},{"name":"owner","type":"address"},{"name":"sendGasTo","type":"address"},{"name":"price","type":"uint128"}],"name":"_m_pending_offers","type":"map(address,tuple)"}
 	]
 }

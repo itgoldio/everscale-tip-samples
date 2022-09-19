@@ -17,7 +17,7 @@ async function main() {
     {
       type: 'text',
       name: 'tokenRoot',
-      message: 'Token root',
+      message: 'TokenRoot',
       initial: zeroAddress
     },
     {

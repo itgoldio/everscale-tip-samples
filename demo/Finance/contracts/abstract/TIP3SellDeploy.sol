@@ -24,7 +24,8 @@ abstract contract TIP3SellDeploy {
         address owner,
         address sendGasTo,
         uint128 remainOnSell,
-        uint128 price
+        uint128 price,
+        uint128 deployTIP3WalletValue
     ) internal {
         TvmCell codeSell = _buildSellCode(address(this));
         TvmCell stateSell = _buildSellState(codeSell, nft);
@@ -37,7 +38,8 @@ abstract contract TIP3SellDeploy {
             owner,
             owner,
             remainOnSell,
-            price
+            price,
+            deployTIP3WalletValue
         );
     }
 

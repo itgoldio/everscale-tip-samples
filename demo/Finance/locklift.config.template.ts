@@ -14,12 +14,13 @@ const config: LockliftConfig = {
     // path: "/mnt/o/projects/broxus/TON-Solidity-Compiler/build/solc/solc",
 
     // Or specify version of compiler
-    version: "0.61.2",
+    version: "0.58.1",
 
     // Specify config for extarnal contracts as in exapmple
-    // externalContracts: {
-    //   "node_modules/broxus-ton-tokens-contracts/build": ['TokenRoot', 'TokenWallet']
-    // }
+    externalContracts: {
+      "node_modules/broxus-ton-tokens-contracts/build": ['TokenRoot', 'TokenWallet'],
+      "../StandardWebToken/build": ['Collection', 'Index', 'IndexBasis', 'Nft']
+    }
   },
   linker: {
     // Specify path to your stdlib

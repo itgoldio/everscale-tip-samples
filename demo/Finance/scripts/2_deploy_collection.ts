@@ -1,7 +1,5 @@
 import ora from 'ora';
 import chalk from 'chalk';
-import prompts from 'prompts';
-import { zeroAddress } from 'locklift/.';
 
 async function main() {
   const spinner = ora();

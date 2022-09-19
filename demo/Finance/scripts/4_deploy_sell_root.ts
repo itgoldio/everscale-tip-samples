@@ -11,7 +11,7 @@ async function main() {
     {
         type: 'text',
         name: 'tip3TokenRoot',
-        message: 'TIP3TokenRoot',
+        message: 'TokenRoot',
         initial: zeroAddress
     },
   ]);

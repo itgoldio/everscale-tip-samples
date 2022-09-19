@@ -20,10 +20,14 @@ struct PendingOffer {
 
 /// @notice Library with IP3SellRoot gas constants
 library TIP3SellRootGas {
-    /// @notice Minimal gas value for proccessing
-    uint128 constant MIN_PROCESSING_GAS = 1 ton;
+    /// @notice Value for proccessing
+    uint128 constant PROCESSING_GAS = 0.3 ton;
+    /// @notice Value for deploy TIP3 token wallet
+    uint128 constant DEPLOY_TIP3_WALLET_GAS = 0.3 ton;
     /// @notice Value for change NFT manager 
-    uint128 constant CHANGE_MANAGER_GAS = 0.3 ton;
+    uint128 constant CHANGE_NFT_MANAGER_GAS = 0.3 ton;
+    /// @notice Balance of TIP3Sell
+    uint128 constant REMAIN_ON_SELL = 0.2 ton;
 }
 
 contract TIP3SellRoot is 
@@ -35,9 +39,6 @@ contract TIP3SellRoot is
 
     /// @notice Address of TIP3 token root
     address _tip3TokenRoot;
-
-    /// @notice Balance of TIP3Sell
-    uint128 _remainOnSell = 0.2 ton;
 
     /// @notice Map of pendings TIP3Sell
     /// @dev (TIP3Sell address => PendingOffer)
@@ -73,10 +74,11 @@ contract TIP3SellRoot is
         TvmBuilder payload;
         payload.store(price);
 
+        (uint128 totalGasPrice,,,,) = getGasPrice();
+
         /// @dev Create callback from NFT
         callbacks[address(this)] = ITIP4_1NFT.CallbackParams(
-            TIP3SellRootGas.MIN_PROCESSING_GAS +
-            TIP3SellRootGas.CHANGE_MANAGER_GAS,
+            totalGasPrice,
             payload.toCell()
         );
 
@@ -112,8 +114,9 @@ contract TIP3SellRoot is
         TvmCell payload
     ) external override {
         tvm.rawReserve(0, 4);
+        (uint128 totalGasPrice,,,,) = getGasPrice();
         if(newManager == address(this)) {
-            if(msg.value >= TIP3SellRootGas.MIN_PROCESSING_GAS) {
+            if(msg.value >= totalGasPrice) {
                 
                 /// @dev Decode `price` from custom payload
                 (uint128 price) = payload.toSlice().decode(uint128);
@@ -132,8 +135,9 @@ contract TIP3SellRoot is
                     msg.sender,
                     owner,
                     sendGasTo,
-                    _remainOnSell,
-                    price
+                    TIP3SellRootGas.REMAIN_ON_SELL,
+                    price,
+                    TIP3SellRootGas.DEPLOY_TIP3_WALLET_GAS
                 );
             }
             /// @dev Return manager to owner of NFT
@@ -171,7 +175,7 @@ contract TIP3SellRoot is
             mapping(address => ITIP4_1NFT.CallbackParams) callbacks;
             TvmCell empty;
             callbacks[msg.sender] = ITIP4_1NFT.CallbackParams(
-                TIP3SellRootGas.CHANGE_MANAGER_GAS,
+                TIP3SellRootGas.CHANGE_NFT_MANAGER_GAS,
                 empty
             );
             ITIP4_1NFT(nft).changeManager{
@@ -192,6 +196,30 @@ contract TIP3SellRoot is
                 bounce: false
             });
         }
+    }
+
+    function getGasPrice() public responsible view returns(
+        uint128 totalPrice,
+        uint128 processingPrice,
+        uint128 deployTIP3WalletPrice,
+        uint128 changeNftManagerPrice,
+        uint128 remainOnSell
+    ) {
+        return{
+            value: 0,
+            flag: 64,
+            bounce: true
+        }(
+        (
+            TIP3SellRootGas.PROCESSING_GAS +
+            (TIP3SellRootGas.DEPLOY_TIP3_WALLET_GAS * 2) +
+            TIP3SellRootGas.CHANGE_NFT_MANAGER_GAS + 
+            TIP3SellRootGas.REMAIN_ON_SELL
+        ),
+        TIP3SellRootGas.PROCESSING_GAS,
+        TIP3SellRootGas.DEPLOY_TIP3_WALLET_GAS,
+        TIP3SellRootGas.CHANGE_NFT_MANAGER_GAS,
+        TIP3SellRootGas.REMAIN_ON_SELL);
     }
 
 }
