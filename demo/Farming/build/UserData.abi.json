@@ -69,6 +69,30 @@
 			],
 			"outputs": [
 			]
+		},
+		{
+			"name": "getInfo",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"lastRewardTime","type":"uint32"},
+				{"name":"vestingPeriod","type":"uint32"},
+				{"name":"vestingRatio","type":"uint32"},
+				{"name":"amount","type":"uint128"},
+				{"name":"vestingTime","type":"uint32"},
+				{"name":"rewardDebt","type":"uint128"},
+				{"name":"entitled","type":"uint128"},
+				{"name":"poolDebt","type":"uint128"}
+			]
+		},
+		{
+			"name": "_deposits",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_deposits","type":"address[]"}
+			]
 		}
 	],
 	"data": [
@@ -86,7 +110,6 @@
 		{"name":"_lastRewardTime","type":"uint32"},
 		{"name":"_vestingPeriod","type":"uint32"},
 		{"name":"_vestingRatio","type":"uint32"},
-		{"name":"_amount","type":"uint128"},
 		{"name":"_vestingTime","type":"uint32"},
 		{"name":"_rewardDebt","type":"uint128"},
 		{"name":"_entitled","type":"uint128"},

@@ -11,13 +11,14 @@ import '@itgold/everscale-tip/contracts/TIP4_1/interfaces/INftChangeManager.sol'
 import '@itgold/everscale-tip/contracts/TIP4_1/interfaces/ITIP4_1NFT.sol';
 import '@itgold/everscale-tip/contracts/TIP4_1/TIP4_1Nft.sol';
 import '@itgold/everscale-tip/contracts/access/OwnableInternal.sol';
+import '@itgold/everscale-tip/contracts/TIP6/TIP6.sol';
 import 'abstract/Checks.sol';
 import 'UserData.sol';
 
 import 'interfaces/IUserData.sol';
 import 'interfaces/IFarmingPool.sol';
 
-contract FarmingPool is IFarmingPool, INftChangeManager, IAcceptTokensTransferCallback, Checks, OwnableInternal {
+contract FarmingPool is IFarmingPool, INftChangeManager, IAcceptTokensTransferCallback, Checks, OwnableInternal, TIP6 {
 
     struct PendingDeposit {
         address nft;
@@ -28,11 +29,11 @@ contract FarmingPool is IFarmingPool, INftChangeManager, IAcceptTokensTransferCa
     // constants
     uint128 constant TOKEN_WALLET_DEPLOY_VALUE = 0.5 ever;
     uint128 constant TOKEN_WALLET_DEPLOY_GRAMS_VALUE = 0.1 ever;
-    uint128 constant TOKEN_TRANSFER_VALUE = 1 ever;
+    uint128 constant TOKEN_TRANSFER_VALUE = 0.5 ever;
     uint128 constant CALLBACK_VALUE = 0.1 ever;
     uint128 constant SET_END_TIME_VALUE = 0.5 ever;
-    uint128 constant MIN_CALL_MSG_VALUE = 1 ever;
-    uint128 constant INCREASE_DEBTf_VALUE = 0.3 ever;
+    uint128 constant MIN_CALL_MSG_VALUE = 0.5 ever;
+    uint128 constant INCREASE_DEBT_VALUE = 0.3 ever;
     uint128 constant USER_DATA_DEPLOY_VALUE = 0.5 ever;
 
     uint32 constant MAX_UINT32 = 0xFFFFFFFF;
@@ -109,6 +110,27 @@ contract FarmingPool is IFarmingPool, INftChangeManager, IAcceptTokensTransferCa
         _vestingRatio = vestingRatio;
         _codeUserData = codeUserData;
 
+        _supportedInterfaces[
+            bytes4(tvm.functionId(INftChangeManager.onNftChangeManager))
+        ] = true;
+
+        _supportedInterfaces[
+            bytes4(tvm.functionId(IAcceptTokensTransferCallback.onAcceptTokensTransfer))
+        ] = true;
+
+        _supportedInterfaces[
+            bytes4(tvm.functionId(IFarmingPool.finishDeposit)) ^
+            bytes4(tvm.functionId(IFarmingPool.finishWithdraw)) ^
+            bytes4(tvm.functionId(IFarmingPool.receiveTokenWalletAddress)) ^
+            bytes4(tvm.functionId(IFarmingPool.setEndTime)) ^
+            bytes4(tvm.functionId(IFarmingPool.withdraw)) ^
+            bytes4(tvm.functionId(IFarmingPool.withdrawUnclaimed)) ^
+            bytes4(tvm.functionId(IFarmingPool.claimRewardForUser)) ^
+            bytes4(tvm.functionId(IFarmingPool.claimReward)) ^
+            bytes4(tvm.functionId(IFarmingPool.getUserDataAddress)) ^
+            bytes4(tvm.functionId(IFarmingPool.getInfo))
+        ] = true;
+
         _setUp();
     }
 
@@ -129,7 +151,7 @@ contract FarmingPool is IFarmingPool, INftChangeManager, IAcceptTokensTransferCa
 
     function receiveTokenWalletAddress(
         address wallet
-    ) external virtual {
+    ) external override virtual {
         require(msg.sender == _rewardTokenRoot);
         
         _rewardTokenWallet = wallet; 
@@ -141,7 +163,8 @@ contract FarmingPool is IFarmingPool, INftChangeManager, IAcceptTokensTransferCa
         address receiverAddr,
         uint128 amount,
         address sendGasTo,
-        address nft
+        address nft,
+        bool deploy
     ) internal virtual returns (uint128 reward, uint128 rewardDebt){
         reward = amount;
         rewardDebt = 0;
@@ -157,13 +180,18 @@ contract FarmingPool is IFarmingPool, INftChangeManager, IAcceptTokensTransferCa
             }
         }
 
+        uint128 deployValue = 0;
         TvmBuilder builder;
         builder.store(nft);
         if (reward > 0) {
+            if (deploy) {
+                deployValue = TOKEN_WALLET_DEPLOY_GRAMS_VALUE;
+            }
+            
             ITokenWallet(_rewardTokenWallet).transfer{value: TOKEN_TRANSFER_VALUE, flag: 0}(
                 reward,
                 receiverAddr,
-                0,
+                deployValue,
                 sendGasTo,
                 true,
                 builder.toCell()
@@ -214,13 +242,14 @@ contract FarmingPool is IFarmingPool, INftChangeManager, IAcceptTokensTransferCa
         TvmCell payload
     ) external override {
         tvm.rawReserve(0, 4);
-        payload;
+        payload; // disable warning
 
         if (
             !_active || 
             _collection != collection || 
             _resolveNft(id, collection) != msg.sender ||
-            newManager != address(this)
+            newManager != address(this) ||
+            msg.value < (MIN_CALL_MSG_VALUE + TOKEN_WALLET_DEPLOY_VALUE)
         ) {
             mapping(address => ITIP4_1NFT.CallbackParams) callbacks;
             ITIP4_1NFT(msg.sender).changeManager{value: 0, flag: 128, bounce: false}(
@@ -236,10 +265,10 @@ contract FarmingPool is IFarmingPool, INftChangeManager, IAcceptTokensTransferCa
         _totalDeposits++;
         PendingDeposit deposit = PendingDeposit(msg.sender, owner, sendGasTo);
         _deposits[_depositNonce] = deposit;
-        _depositNonce++;
     
         address userDataAddr = getUserDataAddress(owner);
         IUserData(userDataAddr).processDeposit{value: 0, flag: 128}(_depositNonce, msg.sender, _accRewardPerShare, _lastRewardTime, _farmEndTime);
+        _depositNonce++;
     }
 
     function _resolveNft(
@@ -266,7 +295,7 @@ contract FarmingPool is IFarmingPool, INftChangeManager, IAcceptTokensTransferCa
         (
             uint128 reward,
             uint128 rewardDebt
-        ) = _transferReward(expectedAddr, deposit.owner, vested, deposit.sendGasTo, deposit.nft);
+        ) = _transferReward(expectedAddr, deposit.owner, vested, deposit.sendGasTo, deposit.nft, false);
 
         emit Deposit(depositNonce, deposit.owner, deposit.nft, reward, rewardDebt);
         delete _deposits[depositNonce];
@@ -287,7 +316,7 @@ contract FarmingPool is IFarmingPool, INftChangeManager, IAcceptTokensTransferCa
         (
         uint128 reward,
         uint128 rewardDebt
-        ) = _transferReward(expectedAddr, user, vested, sendGasTo, nft);
+        ) = _transferReward(expectedAddr, user, vested, sendGasTo, nft, false);
 
         // withdraw is called
         if (nft.value != 0) {
@@ -314,15 +343,14 @@ contract FarmingPool is IFarmingPool, INftChangeManager, IAcceptTokensTransferCa
         _unclaimedReward = unclaimedReward;
     }
 
-    function _getMultiplier(uint32 from, uint32 to) internal virtual view returns(uint32) {
+    function _getMultiplier(uint32 from, uint32 to) private view returns(uint32) {
         require (from <= to, WRONG_INTERVAL);
 
-        uint32 farmEndTime = _farmEndTime > 0 ? _farmEndTime : MAX_UINT32;
-        if ((from > _farmEndTime) || (to < _farmStartTime)) {
+        if ((from > _farmEndTime && _farmEndTime != 0) || (to < _farmStartTime)) {
             return 0;
         }
 
-        if (to > _farmEndTime) {
+        if (to > _farmEndTime && _farmEndTime != 0) {
             to = _farmEndTime;
         }
 
@@ -352,7 +380,11 @@ contract FarmingPool is IFarmingPool, INftChangeManager, IAcceptTokensTransferCa
                 uint32 multiplier = _getMultiplier(lastRewardTime, now);
                 uint128 newReward = _rewardPerSecond * multiplier;
                 uint32 newRewardTime;
-                newRewardTime = math.min(now, _farmEndTime);
+                if (_farmEndTime > 0) {
+                    newRewardTime = math.min(now, _farmEndTime);
+                } else {
+                    newRewardTime = now;
+                }
 
                 if (_totalDeposits == 0) {
                     unclaimedReward += newReward;
@@ -368,7 +400,7 @@ contract FarmingPool is IFarmingPool, INftChangeManager, IAcceptTokensTransferCa
         return (lastRewardTime, accRewardPerShare, unclaimedReward);
     }
 
-    function setEndTime(uint32 farmEndTime, address sendGasTo) external virtual onlyOwner {
+    function setEndTime(uint32 farmEndTime, address sendGasTo) external override virtual onlyOwner {
         require (msg.value >= SET_END_TIME_VALUE);
         require (farmEndTime >= now, BAD_FARM_END_TIME);
         require (_farmEndTime == 0, BAD_FARM_END_TIME);
@@ -380,7 +412,7 @@ contract FarmingPool is IFarmingPool, INftChangeManager, IAcceptTokensTransferCa
         sendGasTo.transfer(0, false, 128);
     }
 
-    function withdraw(address nft, address sendGasTo) external virtual {
+    function withdraw(address nft, address sendGasTo) external override virtual {
         require (nft.value != 0, ZERO_AMOUNT_INPUT);
         require (msg.value >= MIN_CALL_MSG_VALUE + TOKEN_TRANSFER_VALUE, LOW_WITHDRAW_MSG_VALUE);
         tvm.rawReserve(0, 4);
@@ -391,17 +423,17 @@ contract FarmingPool is IFarmingPool, INftChangeManager, IAcceptTokensTransferCa
         IUserData(userDataAddr).processWithdraw{value: 0, flag: 128}(nft, _accRewardPerShare, _lastRewardTime, _farmEndTime, sendGasTo);
     }
 
-    function withdrawUnclaimed(address to, address sendGasTo) external virtual onlyOwner {
-        require (msg.value >= MIN_CALL_MSG_VALUE + TOKEN_TRANSFER_VALUE, LOW_WITHDRAW_MSG_VALUE);
+    function withdrawUnclaimed(address to, address sendGasTo) external override virtual onlyOwner {
+        require (msg.value >= MIN_CALL_MSG_VALUE + TOKEN_TRANSFER_VALUE + TOKEN_WALLET_DEPLOY_GRAMS_VALUE, LOW_WITHDRAW_MSG_VALUE);
         tvm.rawReserve(0, 4);
 
-        _transferReward(address.makeAddrNone(), to, _unclaimedReward, sendGasTo, address.makeAddrNone());
+        _transferReward(address.makeAddrNone(), to, _unclaimedReward, sendGasTo, address.makeAddrNone(), true);
         _unclaimedReward = 0;
 
         sendGasTo.transfer(0, false, 128);
     }
 
-    function claimRewardForUser(address user, address sendGasTo) external {
+    function claimRewardForUser(address user, address sendGasTo) external override {
         require (msg.value >= MIN_CALL_MSG_VALUE + TOKEN_TRANSFER_VALUE, LOW_WITHDRAW_MSG_VALUE);
         tvm.rawReserve(0, 4);
 
@@ -411,7 +443,7 @@ contract FarmingPool is IFarmingPool, INftChangeManager, IAcceptTokensTransferCa
         IUserData(userDataAddr).processClaimReward{value: 0, flag: 128}(_accRewardPerShare, _lastRewardTime, _farmEndTime, sendGasTo);
     }
 
-    function claimReward(address sendGasTo) external virtual {
+    function claimReward(address sendGasTo) external override virtual {
         require (msg.value >= MIN_CALL_MSG_VALUE + TOKEN_TRANSFER_VALUE, LOW_WITHDRAW_MSG_VALUE);
         tvm.rawReserve(0, 4);
 
@@ -432,7 +464,7 @@ contract FarmingPool is IFarmingPool, INftChangeManager, IAcceptTokensTransferCa
         });
     }
 
-    function getUserDataAddress(address user) public virtual view responsible returns (address) {
+    function getUserDataAddress(address user) public view virtual override responsible returns (address) {
         return { value: 0, flag: 64, bounce: false } address(tvm.hash(_buildUserInitData(user)));
     }
 
@@ -446,7 +478,7 @@ contract FarmingPool is IFarmingPool, INftChangeManager, IAcceptTokensTransferCa
         );
     }
 
-    function getInfo() public view responsible returns(
+    function getInfo() public view override responsible returns(
         bool active,
         uint128 totalDeposits,
         uint32 farmStartTime,
@@ -456,7 +488,10 @@ contract FarmingPool is IFarmingPool, INftChangeManager, IAcceptTokensTransferCa
         uint256 accRewardPerShare,
         uint128 unclaimedReward,
         uint32 vestingPeriod,
-        uint32 vestingRatio
+        uint32 vestingRatio,
+        address rewardTokenRoot,
+        address rewardTokenWallet,
+        uint128 rewardTokenWalletBalance
     ) {
         return{
             value: 0,
@@ -472,7 +507,10 @@ contract FarmingPool is IFarmingPool, INftChangeManager, IAcceptTokensTransferCa
             _accRewardPerShare,
             _unclaimedReward,
             _vestingPeriod,
-            _vestingRatio
+            _vestingRatio,
+            _rewardTokenRoot,
+            _rewardTokenWallet,
+            _rewardTokenWalletBalance
         );
     }
 
@@ -496,5 +534,5 @@ contract FarmingPool is IFarmingPool, INftChangeManager, IAcceptTokensTransferCa
         }
     }
 
-    function dummy(address user_wallet) external view virtual { tvm.rawReserve(0, 4); }
+    function dummy(address user_wallet) external pure virtual { tvm.rawReserve(0, 4); }
 }

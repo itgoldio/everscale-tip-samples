@@ -153,7 +153,10 @@
 				{"name":"accRewardPerShare","type":"uint256"},
 				{"name":"unclaimedReward","type":"uint128"},
 				{"name":"vestingPeriod","type":"uint32"},
-				{"name":"vestingRatio","type":"uint32"}
+				{"name":"vestingRatio","type":"uint32"},
+				{"name":"rewardTokenRoot","type":"address"},
+				{"name":"rewardTokenWallet","type":"address"},
+				{"name":"rewardTokenWalletBalance","type":"uint128"}
 			]
 		},
 		{
@@ -162,6 +165,16 @@
 				{"name":"user_wallet","type":"address"}
 			],
 			"outputs": [
+			]
+		},
+		{
+			"name": "supportsInterface",
+			"inputs": [
+				{"name":"answerId","type":"uint32"},
+				{"name":"interfaceID","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"value0","type":"bool"}
 			]
 		},
 		{
@@ -250,6 +263,7 @@
 		{"name":"_constructorFlag","type":"bool"},
 		{"name":"_checkList","type":"uint8"},
 		{"name":"_owner","type":"address"},
+		{"name":"_supportedInterfaces","type":"optional(cell)"},
 		{"name":"_rewardTokenRoot","type":"address"},
 		{"name":"_rewardTokenWallet","type":"address"},
 		{"name":"_rewardTokenWalletBalance","type":"uint128"},

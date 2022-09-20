@@ -22,14 +22,13 @@ contract UserData is IUserData {
     // number from 0 to 1000 (0% to 100%). 0 means vesting is disabled
     uint32 _vestingRatio;
 
-    uint128 _amount;
     uint32 _vestingTime;
     uint128 _rewardDebt;
     uint128 _entitled;
     uint128 _poolDebt;
 
     /// nft addresses
-    address[] _deposits;
+    address[] public _deposits;
 
     constructor(
         uint32 vestingPeriod,
@@ -39,24 +38,22 @@ contract UserData is IUserData {
 
         _vestingPeriod = vestingPeriod;
         _vestingRatio = vestingRatio;
-
-        _deposits.push(address.makeAddrNone());
     }
 
     function pendingReward(
         uint256 accRewardPerShare,
         uint32 poolLastRewardTime,
         uint32 farmEndTime
-    ) external view returns (uint128 entitled, uint128 vested, uint128 poolDebt, uint32 vestingTime) {
+    ) external view override returns (uint128 entitled, uint128 vested, uint128 poolDebt, uint32 vestingTime) {
         (
             entitled,
             vested,
             vestingTime
-        ) = _computeVesting(_amount, _rewardDebt, accRewardPerShare, poolLastRewardTime, farmEndTime);
+        ) = _computeVesting(uint128(_deposits.length), _rewardDebt, accRewardPerShare, poolLastRewardTime, farmEndTime);
 
         return (entitled, vested, poolDebt, vestingTime);
     }
-
+    
     function _isEven(uint64 num) internal pure returns (bool) {
         return (num / 2) == 0 ? true : false;
     }
@@ -233,7 +230,7 @@ contract UserData is IUserData {
         uint32 farmEndTime, 
         address sendGasTo
     ) internal {
-        uint128 prevAmount = _amount;
+        uint128 prevAmount = uint128(_deposits.length);
         uint128 prevRewardDebt = _rewardDebt;
 
         for (uint i = 0; i < _deposits.length; i++) {
@@ -241,12 +238,10 @@ contract UserData is IUserData {
                 delete _deposits[i];
                 _deposits[i] = _deposits[_deposits.length - 1];
                 _deposits.pop();
-
-                _amount -= 1;
             }
         }
 
-        uint256 reward = _amount * accRewardPerShare;
+        uint256 reward = uint128(_deposits.length) * accRewardPerShare;
         _rewardDebt = uint128(reward / SCALING_FACTOR);
 
         (
@@ -287,6 +282,28 @@ contract UserData is IUserData {
         tvm.rawReserve(0, 4);
 
         _withdraw(address(0), accRewardPerShare, poolLastRewardTime, farmEndTime, sendGasTo);
+    }
+
+    function getInfo() public view override responsible returns(
+        uint32 lastRewardTime,
+        uint32 vestingPeriod,
+        uint32 vestingRatio,
+        uint128 amount,
+        uint32 vestingTime,
+        uint128 rewardDebt,
+        uint128 entitled,
+        uint128 poolDebt
+    ) {
+        return {value: 0, flag: 64, bounce: false} (
+            _lastRewardTime,
+            _vestingPeriod,
+            _vestingRatio,
+            uint128(_deposits.length),
+            _vestingTime,
+            _rewardDebt,
+            _entitled,
+            _poolDebt
+        );
     }
 
 }
