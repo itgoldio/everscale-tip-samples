@@ -26,10 +26,10 @@ abstract contract TIP3SellDeploy {
         uint128 remainOnSell,
         uint128 price,
         uint128 deployTIP3WalletValue
-    ) internal {
+    ) internal returns(address sellAddr){
         TvmCell codeSell = _buildSellCode(address(this));
         TvmCell stateSell = _buildSellState(codeSell, nft);
-        address sellAddr = new TIP3Sell {
+        sellAddr = new TIP3Sell {
             stateInit: stateSell,
             value: 0,
             flag: 128

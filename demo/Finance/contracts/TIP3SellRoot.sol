@@ -7,16 +7,9 @@ pragma AbiHeader pubkey;
 import "@itgold/everscale-tip/contracts/access/OwnableExternal.sol";
 import "@itgold/everscale-tip/contracts/TIP4_1/interfaces/INftChangeManager.sol";
 import "@itgold/everscale-tip/contracts/TIP4_1/TIP4_1Nft.sol";
+import "@itgold/everscale-tip/contracts/TIP6/TIP6.sol";
 import "./interfaces/ITIP3SellRoot.sol";
 import "./abstract/TIP3SellDeploy.sol";
-
-/// @notice Object for pendings TIP3Sell
-struct PendingOffer {
-    address nft;
-    address owner;
-    address sendGasTo;
-    uint128 price;
-}
 
 /// @notice Library with IP3SellRoot gas constants
 library TIP3SellRootGas {
@@ -30,11 +23,18 @@ library TIP3SellRootGas {
     uint128 constant REMAIN_ON_SELL = 0.2 ton;
 }
 
+interface TIP3SellRootEvents {
+    /// @notice Event for deploy TIP3Sell contract
+    event SellCreated(address sell, address nft, uint128 price);
+}
+
 contract TIP3SellRoot is 
     ITIP3SellRoot,
     OwnableExternal,
     TIP3SellDeploy,
-    INftChangeManager
+    INftChangeManager,
+    TIP3SellRootEvents,
+    TIP6
 {
 
     /// @notice Address of TIP3 token root
@@ -57,6 +57,22 @@ contract TIP3SellRoot is
     public {
         tvm.accept();
         _tip3TokenRoot = tip3TokenRoot;
+
+        /// @dev TIP6
+        _supportedInterfaces[
+            bytes4(tvm.functionId(ITIP3SellRoot.buildSellMsg)) ^
+            bytes4(tvm.functionId(ITIP3SellRoot.changeManagerToSell)) ^
+            bytes4(tvm.functionId(ITIP3SellRoot.getInfo)) ^
+            bytes4(tvm.functionId(ITIP3SellRoot.getGasPrice))
+        ] = true;
+
+        _supportedInterfaces[
+            bytes4(tvm.functionId(INftTransfer.onNftTransfer))
+        ] = true;
+
+        _supportedInterfaces[
+            bytes4(tvm.functionId(ITIP6.supportsInterface))
+        ] = true;
     }
 
     /// @notice Create payload to sell NFT (change manager to this contract)
@@ -130,7 +146,7 @@ contract TIP3SellRoot is
                 );
 
                 /// @dev Deploy TIP3Sell contract
-                _deployTIP3Sell(
+                address sell = _deployTIP3Sell(
                     _tip3TokenRoot,
                     msg.sender,
                     owner,
@@ -139,6 +155,7 @@ contract TIP3SellRoot is
                     price,
                     TIP3SellRootGas.DEPLOY_TIP3_WALLET_GAS
                 );
+                emit SellCreated(sell, msg.sender, price);
             }
             /// @dev Return manager to owner of NFT
             else {
@@ -198,7 +215,10 @@ contract TIP3SellRoot is
         }
     }
 
-    function getInfo() external responsible view returns(
+    /// @notice Get contract info
+    /// @return tip3TokenRoot Token root address
+    /// @return m_pending_offers List of pinding offers
+    function getInfo() external override responsible view returns(
         address tip3TokenRoot,
         mapping(address=>PendingOffer) m_pending_offers
     ) {
@@ -212,7 +232,13 @@ contract TIP3SellRoot is
         );
     }
 
-    function getGasPrice() public responsible view returns(
+    /// @notice Get gas prices
+    /// @param totalPrice Sell process price
+    /// @param processingPrice Gas for processing
+    /// @param deployTIP3WalletPrice Gas for deploy token wallet
+    /// @param changeNftManagerPrice Gas for change nft manager
+    /// @param remainOnSell Balance of `TIP3Sell`
+    function getGasPrice() public override responsible view returns(
         uint128 totalPrice,
         uint128 processingPrice,
         uint128 deployTIP3WalletPrice,
@@ -234,6 +260,28 @@ contract TIP3SellRoot is
         TIP3SellRootGas.DEPLOY_TIP3_WALLET_GAS,
         TIP3SellRootGas.CHANGE_NFT_MANAGER_GAS,
         TIP3SellRootGas.REMAIN_ON_SELL);
+    }
+
+    /// @notice Clear pending offers map
+    function clearPendingOffers() external onlyOwner {
+        tvm.accept();
+        delete _m_pending_offers;
+    }
+
+    /// @notice Method for withdrawing funds from a contract
+    /// @param dest The address where the funds will be sent
+    /// @param value Amount of funds
+    /// @param bounce Safe withdraw flag
+    function withdraw(address dest, uint128 value, bool bounce) external pure onlyOwner {
+        tvm.accept();
+        dest.transfer(value, bounce, 0);
+    }
+
+    /// @notice Method for destroy this contract
+    /// @param dest The address where the funds will be sent
+    function destroy(address dest) external onlyOwner {
+        tvm.accept();
+        selfdestruct(dest);
     }
 
 }

@@ -33,7 +33,7 @@
 			]
 		},
 		{
-			"name": "declineSell",
+			"name": "cancelSell",
 			"inputs": [
 				{"name":"sendGasTo","type":"address"}
 			],
@@ -109,7 +109,20 @@
 				{"name":"confirmSellPrice","type":"uint128"},
 				{"name":"cancelSellPrice","type":"uint128"},
 				{"name":"transferNftPrice","type":"uint128"},
-				{"name":"processingPrice","type":"uint128"}
+				{"name":"processingPrice","type":"uint128"},
+				{"name":"transferTokensPrice","type":"uint128"},
+				{"name":"tokenWalletDestroyPrice","type":"uint128"},
+				{"name":"changeNftManagerPrice","type":"uint128"}
+			]
+		},
+		{
+			"name": "supportsInterface",
+			"inputs": [
+				{"name":"answerId","type":"uint32"},
+				{"name":"interfaceID","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"value0","type":"bool"}
 			]
 		},
 		{
@@ -126,6 +139,34 @@
 		{"key":1,"name":"_nft","type":"address"}
 	],
 	"events": [
+		{
+			"name": "ReadyToSell",
+			"inputs": [
+				{"name":"owner","type":"address"},
+				{"name":"price","type":"uint128"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "Cancel",
+			"inputs": [
+				{"name":"owner","type":"address"},
+				{"name":"price","type":"uint128"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "Buy",
+			"inputs": [
+				{"name":"oldOwner","type":"address"},
+				{"name":"newOwner","type":"address"},
+				{"name":"price","type":"uint128"}
+			],
+			"outputs": [
+			]
+		}
 	],
 	"fields": [
 		{"name":"_pubkey","type":"uint256"},
@@ -133,6 +174,7 @@
 		{"name":"_constructorFlag","type":"bool"},
 		{"name":"_checkList","type":"uint8"},
 		{"name":"_status","type":"uint8"},
+		{"name":"_supportedInterfaces","type":"optional(cell)"},
 		{"name":"_nft","type":"address"},
 		{"name":"_tip3TokenRoot","type":"address"},
 		{"name":"_tip3SellRoot","type":"address"},

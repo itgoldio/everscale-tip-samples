@@ -1,6 +1,12 @@
 pragma ton-solidity ^0.58.1;
 
-import "@itgold/everscale-tip/contracts/TIP4_1/interfaces/ITIP4_1NFT.sol";
+/// @notice Object for pendings TIP3Sell
+struct PendingOffer {
+    address nft;
+    address owner;
+    address sendGasTo;
+    uint128 price;
+}
 
 interface ITIP3SellRoot {
 
@@ -21,5 +27,27 @@ interface ITIP3SellRoot {
         address nft,
         address sendGasTo
     ) external;
+
+    /// @notice Get contract info
+    /// @return tip3TokenRoot Token root address
+    /// @return m_pending_offers List of pinding offers
+    function getInfo() external responsible view returns(
+        address tip3TokenRoot,
+        mapping(address=>PendingOffer) m_pending_offers
+    );
+
+    /// @notice Get gas prices
+    /// @param totalPrice Sell process price
+    /// @param processingPrice Gas for processing
+    /// @param deployTIP3WalletPrice Gas for deploy token wallet
+    /// @param changeNftManagerPrice Gas for change nft manager
+    /// @param remainOnSell Balance of `TIP3Sell`
+    function getGasPrice() external responsible view returns(
+        uint128 totalPrice,
+        uint128 processingPrice,
+        uint128 deployTIP3WalletPrice,
+        uint128 changeNftManagerPrice,
+        uint128 remainOnSell
+    );
 
 }

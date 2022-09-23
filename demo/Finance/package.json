@@ -3,14 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "test": "npx locklift test --network local",
+    "test": "npx locklift test --network local --disable-build",
     "deploy_sell_root": "npx locklift run --network local --script scripts/4_deploy_sell_root.ts --disable-build",
     "deploy_tip3_root": "npx locklift run --network local --script scripts/3_deploy_tip3_root.ts --disable-build",
     "deploy_collection": "npx locklift run --network local --script scripts/2_deploy_collection.ts --disable-build",
-    "mint": "npx locklift run --network local --script scripts/5_mint.ts --disable-build",
-    "sell": "npx locklift run --network local --script scripts/6_sell.ts --disable-build",
-    "buy": "npx locklift run --network local --script scripts/7_buy.ts --disable-build",
-    "pipeline": "npx locklift run --network local --script scripts/pipeline.ts --disable-build",
     "deploy_wallet": "npx locklift run --network local --script scripts/1_deploy_wallet.ts --disable-build"
   },
   "author": "",

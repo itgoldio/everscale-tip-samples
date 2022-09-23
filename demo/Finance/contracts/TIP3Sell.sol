@@ -7,20 +7,28 @@ pragma AbiHeader pubkey;
 import "@itgold/everscale-tip/contracts/TIP4_1/interfaces/INftChangeManager.sol";
 import "@itgold/everscale-tip/contracts/TIP4_1/interfaces/INftTransfer.sol";
 import "@itgold/everscale-tip/contracts/TIP4_1/interfaces/ITIP4_1NFT.sol";
+import "@itgold/everscale-tip/contracts/TIP6/TIP6.sol";
 import "broxus-ton-tokens-contracts/contracts/interfaces/IAcceptTokensTransferCallback.sol";
 import "broxus-ton-tokens-contracts/contracts/interfaces/ITokenWallet.sol";
 import "broxus-ton-tokens-contracts/contracts/interfaces/ITokenRoot.sol";
 import "broxus-ton-tokens-contracts/contracts/interfaces/ITokenWallet.sol";
+import "broxus-ton-tokens-contracts/contracts/interfaces/IDestroyable.sol";
 import "./interfaces/ITIP3SellRoot.sol";
+import "./interfaces/ITIP3Sell.sol";
 import "./abstract/Checks.sol";
-import "./abstract/Status.sol";
 
 /// @notice Library with gas constants
 library TIP3SellGas {
+    /// @notice Value for dhange NFT manager
+    uint128 constant CHANGE_NFT_MANAGER_GAS= 0.3 ton;
+    /// @notice Value for destroy self tip3 token wallet
+    uint128 constant DESTROY_TIP3_WALLET_GAS = 0.3 ton;
+    /// @notice Value for transfer tokens
+    uint128 constant TRANSFER_TOKENS_GAS = 0.1 ton;
     /// @notice Value for change NFT owner
-    uint128 constant NFT_TRANSFER_GAS = 0.3 ton;
+    uint128 constant NFT_TRANSFER_GAS = 0.5 ton;
     /// @notice Value for change NFT owner
-    uint128 constant PROCESSING_GAS = 0.5 ton;
+    uint128 constant PROCESSING_GAS = 0.2 ton;
 }
 
 /// @notice Library with `Checks` constants
@@ -51,10 +59,22 @@ library TIP3SellErrors {
     uint16 constant SENDER_IS_SELL_TIP3_WALLET= 108;
 }
 
+interface TIP3SellEvents {
+    /// @notice Event after all checks & deploy TIP3 wallets
+    event ReadyToSell(address owner, uint128 price);
+    /// @notice Event if owner decline this sell offer
+    event Cancel(address owner, uint128 price);
+    /// @notice Event for transfer NFT to new owner
+    event Buy(address oldOwner, address newOwner, uint128 price);
+}
+
 contract TIP3Sell is 
+    ITIP3Sell,
     Checks,
     Status,
-    IAcceptTokensTransferCallback
+    IAcceptTokensTransferCallback,
+    TIP3SellEvents,
+    TIP6
 {
 
     /// @notice StateInit data field
@@ -127,6 +147,21 @@ contract TIP3Sell is
         _price = price;
         _deployTIP3WalletValue = deployTIP3WalletValue;
 
+        /// @dev TIP6
+        _supportedInterfaces[
+            bytes4(tvm.functionId(ITIP3Sell.cancelSell)) ^
+            bytes4(tvm.functionId(ITIP3Sell.getInfo)) ^
+            bytes4(tvm.functionId(ITIP3Sell.getGasPrice))
+        ] = true;
+
+        _supportedInterfaces[
+            bytes4(tvm.functionId(IAcceptTokensTransferCallback.onAcceptTokensTransfer))
+        ] = true;
+
+        _supportedInterfaces[
+            bytes4(tvm.functionId(ITIP6.supportsInterface))
+        ] = true;
+
         /// @dev Deploy TIP3 token wallet for this TIP3Sell contract
         ITokenRoot(_tip3TokenRoot).deployWallet{
             value: 0,
@@ -176,15 +211,15 @@ contract TIP3Sell is
 
     /// @notice Function for cancel and destroy this contract
     /// @param sendGasTo The address where the funds will be sent
-    function declineSell(address sendGasTo) external {
+    function cancelSell(address sendGasTo) override external {
         require(msg.sender == _owner, TIP3SellErrors.SENDER_IS_NOT_NFT_OWNER);
-        (uint128 totalGasPrice,,,) = getGasPrice();
-        require(msg.value >= totalGasPrice, TIP3SellErrors.LOW_VALUE);
+        (,uint128 gasPrice,,,,,) = getGasPrice();
+        require(msg.value >= gasPrice, TIP3SellErrors.LOW_VALUE);
         tvm.rawReserve(0, 4);
         mapping(address => ITIP4_1NFT.CallbackParams) callbacks;
         TvmCell empty;
         callbacks[address(this)] = ITIP4_1NFT.CallbackParams(
-            TIP3SellGas.NFT_TRANSFER_GAS,
+            TIP3SellGas.DESTROY_TIP3_WALLET_GAS,
             empty
         );
         ITIP4_1NFT(_nft).changeManager{
@@ -196,6 +231,13 @@ contract TIP3Sell is
             sendGasTo,
             callbacks
         );
+
+        IDestroyable(_tip3SellWallet).destroy{
+            value: TIP3SellGas.DESTROY_TIP3_WALLET_GAS,
+            flag: 0,
+            bounce: true
+        }(_owner);
+
         _setStatusType(StatusType.CLOSED);
     }
 
@@ -231,6 +273,7 @@ contract TIP3Sell is
                 flag: 128, 
                 bounce: false
             });
+            emit ReadyToSell(_owner, _price);
             _setStatusType(StatusType.READY);
         }
         else if(
@@ -238,14 +281,8 @@ contract TIP3Sell is
             getStatusType() == StatusType.CLOSED
         ) {
             tvm.accept();
+            emit Cancel(_owner, _price);
             selfdestruct(sendGasTo);
-        }
-        else {
-            sendGasTo.transfer({
-                value: 0,
-                flag: 128,
-                bounce: false
-            });
         }
     } 
 
@@ -266,11 +303,11 @@ contract TIP3Sell is
     ) external override {
         require(msg.sender == _tip3SellWallet, TIP3SellErrors.SENDER_IS_SELL_TIP3_WALLET);
         tvm.rawReserve(0, 4);
-        (uint128 totalGasPrice,,,) = getGasPrice();
+        (uint128 gasPrice,,,,,,) = getGasPrice();
         if(
             _isCheckListEmpty() &&
             _price >= amount &&
-            msg.value >= totalGasPrice &&
+            msg.value >= gasPrice &&
             _tip3TokenRoot == tokenRoot &&
             getStatusType() == StatusType.READY
         ) {
@@ -278,7 +315,8 @@ contract TIP3Sell is
             TvmBuilder builder;
             builder.store(sender, senderWallet);
             callbacks[address(this)] = ITIP4_1NFT.CallbackParams(
-                TIP3SellGas.NFT_TRANSFER_GAS,
+                TIP3SellGas.TRANSFER_TOKENS_GAS +
+                TIP3SellGas.DESTROY_TIP3_WALLET_GAS,
                 builder.toCell()
             );
             ITIP4_1NFT(_nft).transfer{
@@ -328,32 +366,41 @@ contract TIP3Sell is
         TvmCell payload
     ) external {
         require(msg.sender == _nft, TIP3SellErrors.SENDER_IS_NOT_NFT);
-        tvm.rawReserve(0, 4);
+        tvm.accept();
         (address buyerWallet, address buyerTip3Wallet) = payload.toSlice().decode(address, address);
         if(
             buyerWallet == newOwner &&
             getStatusType() == StatusType.PENDING
         ) {
             TvmCell empty;
+
             ITokenWallet(_tip3SellWallet).transferToWallet{
-                value: 0, 
-                flag: 128,
+                value: TIP3SellGas.TRANSFER_TOKENS_GAS, 
+                flag: 0,
                 bounce: false
             }(
                 _price,
                 _tip3VendorWallet,
-                _sendGasTo,
+                gasReceiver,
                 true,
                 empty
             );
+
+            emit Buy(oldOwner, newOwner, _price);
             _setStatusType(StatusType.CLOSED);
-        }
-        else {
-            _sendGasTo.transfer({
+
+            IDestroyable(_tip3SellWallet).destroy{
+                value: TIP3SellGas.DESTROY_TIP3_WALLET_GAS,
+                flag: 0,
+                bounce: false
+            }(_owner);
+
+            _owner.transfer({
                 value: 0,
-                flag: 128,
+                flag: 128 + 32 + 2,
                 bounce: false
             });
+
         }
     }
 
@@ -382,7 +429,7 @@ contract TIP3Sell is
     /// @return remainOnSell Balance after checks
     /// @return price Price in TIP3 tokens
     /// @return status Status of this contract
-    function getInfo() external view responsible returns (
+    function getInfo() external override view responsible returns (
         address nft,
         address tip3TokenRoot,
         address tip3SellRoot,
@@ -417,12 +464,18 @@ contract TIP3Sell is
     /// @return cancelSellPrice Min gas for cancel this offer
     /// @return transferNftPrice Gas for transfer nft to address
     /// @return processingPrice Gas for proccessing
-    function getGasPrice() public responsible view returns(
+    /// @return transferTokensPrice Gas for transfer tokens
+    /// @return tokenWalletDestroyPrice Gas for destroy token wallet
+    /// @return changeNftManagerPrice Gas for change NFT mananger
+    function getGasPrice() public override responsible view returns(
         uint128 confirmSellPrice,
         uint128 cancelSellPrice,
         uint128 transferNftPrice,
-        uint128 processingPrice
-    ) {
+        uint128 processingPrice,
+        uint128 transferTokensPrice,
+        uint128 tokenWalletDestroyPrice,
+        uint128 changeNftManagerPrice
+    ){
         return{
             value: 0,
             flag: 64,
@@ -430,14 +483,20 @@ contract TIP3Sell is
         }(
             (
                 TIP3SellGas.NFT_TRANSFER_GAS +
-                TIP3SellGas.PROCESSING_GAS
+                TIP3SellGas.PROCESSING_GAS + 
+                TIP3SellGas.TRANSFER_TOKENS_GAS + 
+                TIP3SellGas.DESTROY_TIP3_WALLET_GAS
             ),
             (
-                TIP3SellGas.NFT_TRANSFER_GAS +
-                TIP3SellGas.PROCESSING_GAS
+                TIP3SellGas.CHANGE_NFT_MANAGER_GAS +
+                TIP3SellGas.PROCESSING_GAS +
+                TIP3SellGas.DESTROY_TIP3_WALLET_GAS
             ),
             TIP3SellGas.NFT_TRANSFER_GAS,
-            TIP3SellGas.PROCESSING_GAS
+            TIP3SellGas.PROCESSING_GAS,
+            TIP3SellGas.TRANSFER_TOKENS_GAS,
+            TIP3SellGas.DESTROY_TIP3_WALLET_GAS,
+            TIP3SellGas.CHANGE_NFT_MANAGER_GAS
         );
     }
 
