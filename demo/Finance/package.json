@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "test": "npx locklift test --network local --disable-build",
+    "test": "npx locklift test --network local",
     "deploy_sell_root": "npx locklift run --network local --script scripts/4_deploy_sell_root.ts --disable-build",
     "deploy_tip3_root": "npx locklift run --network local --script scripts/3_deploy_tip3_root.ts --disable-build",
     "deploy_collection": "npx locklift run --network local --script scripts/2_deploy_collection.ts --disable-build",
@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "@broxus/contracts": "github:broxus/ever-contracts",
-    "@itgold/everscale-tip": "^1.1.3",
+    "@itgold/everscale-tip": "^1.1.4",
     "broxus-ton-tokens-contracts": "github:broxus/tip3",
     "chalk": "^4.0.1",
     "fs": "^0.0.1-security",
