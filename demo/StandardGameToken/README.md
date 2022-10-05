@@ -2,17 +2,17 @@
 ***
 ### How to use JSONAttributes library to generate dynamic attributes
 1. Add custom game params field to your NFT contract:
-```sol
+```solidity
 /// @notice Test game params for json attribute
 uint32 _points;
 string _rarity;
 ```
 2. Import `JSONAttributes` library:
-```sol
+```solidity
 import './libraries/JSONAttributes.sol';
 ```
 3. Override default `getJson()` function:
-```sol
+```solidity
 /// @notice Attribute types
 /// ANY - without quotation marks: uint, int, bool
 /// STRING - with quotation marks: string
@@ -21,7 +21,7 @@ enum ATTRIBUTE_TYPE {
     STRING
 }
 ```
-```sol
+```solidity
 /// See interfaces/ITIP4_2JSON_Metadata.sol
 function getJson() external view override responsible returns (string json) {
     return {value: 0, flag: 64, bounce: false} (
