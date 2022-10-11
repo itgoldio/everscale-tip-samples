@@ -1,15 +1,27 @@
 {
-  "name": "bulkmint",
+  "name": "locklift-project",
   "version": "1.0.0",
-  "description": "BulkMint demo",
+  "description": "",
   "scripts": {
-    "compile": "locklift build --config locklift.config.js",
-    "deploy": "locklift run --config locklift.config.js --network devnet --script scripts/1-deploy-collection.js",
+    "test": "npx locklift test --network local",
+    "1-deploy-collection": "npx locklift run --network local --script scripts/1-deploy-collection.ts --disable-build"
   },
   "author": "",
-  "license": "MIT",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/chai": "^4.3.3",
+    "@types/mocha": "^9.1.1",
+    "@types/node": "^18.7.23",
+    "chai": "^4.3.6",
+    "everscale-standalone-client": "^2.1.1",
+    "locklift": "^2.2.3",
+    "prettier": "^2.7.1",
+    "ts-mocha": "^10.0.0",
+    "typescript": "^4.7.4"
+  },
   "dependencies": {
-    "@itgold/everscale-tip": "^0.8.1",
-    "locklift": "git+https://github.com/broxus/ton-locklift.git"
+    "@itgold/everscale-tip": "^1.1.4",
+    "ora": "^4.0.0",
+    "prompts": "^2.4.2"
   }
 }
