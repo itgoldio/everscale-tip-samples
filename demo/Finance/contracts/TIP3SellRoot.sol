@@ -165,7 +165,7 @@ contract TIP3SellRoot is
                     flag: 128,
                     bounce: false
                 }(
-                    owner,
+                    oldManager,
                     sendGasTo,
                     callbacks
                 );
@@ -187,32 +187,27 @@ contract TIP3SellRoot is
         address nft,
         address sendGasTo
     ) external override {
+        require(
+            _m_pending_offers.exists(_resolveSell(nft)) &&
+            _resolveSell(nft) == msg.sender
+        );
         tvm.rawReserve(0, 4);
-        if(_m_pending_offers.exists(_resolveSell(nft))) {
-            mapping(address => ITIP4_1NFT.CallbackParams) callbacks;
-            TvmCell empty;
-            callbacks[msg.sender] = ITIP4_1NFT.CallbackParams(
-                TIP3SellRootGas.CHANGE_NFT_MANAGER_GAS,
-                empty
-            );
-            ITIP4_1NFT(nft).changeManager{
-                value: 0,
-                flag: 128,
-                bounce: false
-            }(
-                msg.sender,
-                sendGasTo,
-                callbacks
-            );
-            delete _m_pending_offers[_resolveSell(nft)];
-        }
-        else {
-            sendGasTo.transfer({
-                value: 0,
-                flag: 128 + 2,
-                bounce: false
-            });
-        }
+        mapping(address => ITIP4_1NFT.CallbackParams) callbacks;
+        TvmCell empty;
+        callbacks[msg.sender] = ITIP4_1NFT.CallbackParams(
+            TIP3SellRootGas.CHANGE_NFT_MANAGER_GAS,
+            empty
+        );
+        ITIP4_1NFT(nft).changeManager{
+            value: 0,
+            flag: 128,
+            bounce: false
+        }(
+            msg.sender,
+            sendGasTo,
+            callbacks
+        );
+        delete _m_pending_offers[_resolveSell(nft)];
     }
 
     /// @notice Get contract info
