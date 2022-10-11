@@ -7,6 +7,7 @@
 			"name": "constructor",
 			"inputs": [
 				{"name":"owner","type":"address"},
+				{"name":"gameManager","type":"address"},
 				{"name":"sendGasTo","type":"address"},
 				{"name":"remainOnNft","type":"uint128"},
 				{"name":"json","type":"string"},
@@ -43,11 +44,63 @@
 			]
 		},
 		{
+			"name": "getPoints",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"points","type":"uint32"}
+			]
+		},
+		{
+			"name": "getRarity",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"rarity","type":"string"}
+			]
+		},
+		{
 			"name": "burn",
 			"inputs": [
 				{"name":"dest","type":"address"}
 			],
 			"outputs": [
+			]
+		},
+		{
+			"name": "changeGameManager",
+			"inputs": [
+				{"name":"newGameManager","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "changeMetadataAccess",
+			"inputs": [
+				{"name":"metadataAccess","type":"bool"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "getGameManager",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"gameManager","type":"address"}
+			]
+		},
+		{
+			"name": "getMetadataAccess",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"metadataAccess","type":"bool"}
 			]
 		},
 		{
@@ -137,6 +190,23 @@
 	],
 	"events": [
 		{
+			"name": "ChangeGameManager",
+			"inputs": [
+				{"name":"oldGameManager","type":"address"},
+				{"name":"newGameManager","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "ChangeMetadataAccess",
+			"inputs": [
+				{"name":"metadataAccess","type":"bool"}
+			],
+			"outputs": [
+			]
+		},
+		{
 			"name": "NftCreated",
 			"inputs": [
 				{"name":"id","type":"uint256"},
@@ -190,6 +260,8 @@
 		{"name":"_indexDeployValue","type":"uint128"},
 		{"name":"_indexDestroyValue","type":"uint128"},
 		{"name":"_codeIndex","type":"cell"},
+		{"name":"_metadataAccess","type":"bool"},
+		{"name":"_gameManager","type":"address"},
 		{"name":"_points","type":"uint32"},
 		{"name":"_rarity","type":"string"}
 	]

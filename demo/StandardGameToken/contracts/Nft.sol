@@ -9,9 +9,10 @@ import '@itgold/everscale-tip/contracts/TIP4_1/TIP4_1Nft.sol';
 import '@itgold/everscale-tip/contracts/TIP4_2/TIP4_2Nft.sol';
 import '@itgold/everscale-tip/contracts/TIP4_3/TIP4_3Nft.sol';
 import './interfaces/ITokenBurned.sol';
+import './abstract/GameManager.sol';
 import './libraries/JSONAttributes.sol';
 
-contract Nft is TIP4_1Nft, TIP4_2Nft, TIP4_3Nft {
+contract Nft is TIP4_1Nft, TIP4_2Nft, TIP4_3Nft, GameManager {
 
     /// @notice Test game params for json attribute
     uint32 _points;
@@ -19,6 +20,7 @@ contract Nft is TIP4_1Nft, TIP4_2Nft, TIP4_3Nft {
 
     constructor(
         address owner,
+        address gameManager,
         address sendGasTo,
         uint128 remainOnNft,
         string json,
@@ -35,7 +37,10 @@ contract Nft is TIP4_1Nft, TIP4_2Nft, TIP4_3Nft {
         indexDeployValue,
         indexDestroyValue,
         codeIndex
-    ) public {
+    ) GameManager (
+        gameManager
+    )
+    public {
         tvm.accept();
     }
 
@@ -69,7 +74,7 @@ contract Nft is TIP4_1Nft, TIP4_2Nft, TIP4_3Nft {
 
     /// @notice Function for set `_points` attribute
     /// @param points New value for `_points`
-    function setPoints(uint32 points) external onlyManager {
+    function setPoints(uint32 points) external onlyGameManager metadataAccess(true) {
         tvm.rawReserve(0, 4);
         _points = points;
         msg.sender.transfer({
@@ -81,7 +86,7 @@ contract Nft is TIP4_1Nft, TIP4_2Nft, TIP4_3Nft {
 
     /// @notice Function for set `_rarity` attribute
     /// @param rarity New value for `_rarity`
-    function setRarity(string rarity) external onlyManager {
+    function setRarity(string rarity) external onlyGameManager metadataAccess(true) {
         tvm.rawReserve(0, 4);
         _rarity = rarity;
         msg.sender.transfer({
@@ -89,6 +94,26 @@ contract Nft is TIP4_1Nft, TIP4_2Nft, TIP4_3Nft {
             flag: 128 + 2,
             bounce: false
         });
+    }
+
+    /// @notice Getter for `_points`
+    /// @return points Value of '_points' attribute
+    function getPoints() external responsible view returns(uint32 points) {
+        return{
+            value: 0,
+            flag: 64,
+            bounce: false
+        }(_points);
+    }
+
+    /// @notice Getter for `_rarity`
+    /// @return rarity Value of '_rarity' attribute
+    function getRarity() external responsible view returns(string rarity) {
+        return{
+            value: 0,
+            flag: 64,
+            bounce: false
+        }(_rarity);
     }
 
     function _beforeTransfer(
