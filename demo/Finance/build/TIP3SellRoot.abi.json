@@ -1,0 +1,187 @@
+{
+	"ABI version": 2,
+	"version": "2.2",
+	"header": ["pubkey", "time", "expire"],
+	"functions": [
+		{
+			"name": "constructor",
+			"inputs": [
+				{"name":"ownerPubkey","type":"uint256"},
+				{"name":"tip3TokenRoot","type":"address"},
+				{"name":"tip3SellCode","type":"cell"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "buildSellMsg",
+			"inputs": [
+				{"name":"answerId","type":"uint32"},
+				{"name":"sendGasTo","type":"address"},
+				{"name":"price","type":"uint128"}
+			],
+			"outputs": [
+				{"name":"value0","type":"cell"}
+			]
+		},
+		{
+			"name": "onNftChangeManager",
+			"inputs": [
+				{"name":"id","type":"uint256"},
+				{"name":"owner","type":"address"},
+				{"name":"oldManager","type":"address"},
+				{"name":"newManager","type":"address"},
+				{"name":"collection","type":"address"},
+				{"name":"sendGasTo","type":"address"},
+				{"name":"payload","type":"cell"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "changeManagerToSell",
+			"inputs": [
+				{"name":"nft","type":"address"},
+				{"name":"sendGasTo","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "getInfo",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"tip3TokenRoot","type":"address"},
+				{"components":[{"name":"nft","type":"address"},{"name":"owner","type":"address"},{"name":"sendGasTo","type":"address"},{"name":"price","type":"uint128"}],"name":"m_pending_offers","type":"map(address,tuple)"}
+			]
+		},
+		{
+			"name": "getGasPrice",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"totalPrice","type":"uint128"},
+				{"name":"processingPrice","type":"uint128"},
+				{"name":"deployTIP3WalletPrice","type":"uint128"},
+				{"name":"changeNftManagerPrice","type":"uint128"},
+				{"name":"remainOnSell","type":"uint128"}
+			]
+		},
+		{
+			"name": "clearPendingOffers",
+			"inputs": [
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "withdraw",
+			"inputs": [
+				{"name":"dest","type":"address"},
+				{"name":"value","type":"uint128"},
+				{"name":"bounce","type":"bool"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "destroy",
+			"inputs": [
+				{"name":"dest","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "supportsInterface",
+			"inputs": [
+				{"name":"answerId","type":"uint32"},
+				{"name":"interfaceID","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"value0","type":"bool"}
+			]
+		},
+		{
+			"name": "sellCode",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"value0","type":"cell"}
+			]
+		},
+		{
+			"name": "sellCodeHash",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"value0","type":"uint256"}
+			]
+		},
+		{
+			"name": "sellAddress",
+			"inputs": [
+				{"name":"answerId","type":"uint32"},
+				{"name":"nft","type":"address"}
+			],
+			"outputs": [
+				{"name":"value0","type":"address"}
+			]
+		},
+		{
+			"name": "owner",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"pubkey","type":"uint256"}
+			]
+		},
+		{
+			"name": "transferOwnership",
+			"inputs": [
+				{"name":"newOwner","type":"uint256"}
+			],
+			"outputs": [
+			]
+		}
+	],
+	"data": [
+	],
+	"events": [
+		{
+			"name": "SellCreated",
+			"inputs": [
+				{"name":"sell","type":"address"},
+				{"name":"nft","type":"address"},
+				{"name":"price","type":"uint128"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "OwnershipTransferred",
+			"inputs": [
+				{"name":"oldOwner","type":"uint256"},
+				{"name":"newOwner","type":"uint256"}
+			],
+			"outputs": [
+			]
+		}
+	],
+	"fields": [
+		{"name":"_pubkey","type":"uint256"},
+		{"name":"_timestamp","type":"uint64"},
+		{"name":"_constructorFlag","type":"bool"},
+		{"name":"_owner","type":"uint256"},
+		{"name":"_tip3SellCode","type":"cell"},
+		{"name":"_supportedInterfaces","type":"optional(cell)"},
+		{"name":"_tip3TokenRoot","type":"address"},
+		{"components":[{"name":"nft","type":"address"},{"name":"owner","type":"address"},{"name":"sendGasTo","type":"address"},{"name":"price","type":"uint128"}],"name":"_m_pending_offers","type":"map(address,tuple)"}
+	]
+}

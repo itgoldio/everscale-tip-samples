@@ -1,0 +1,34 @@
+{
+  "name": "locklift-project",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test": "npx locklift test --network local",
+    "deploy_sell_root": "npx locklift run --network local --script scripts/4_deploy_sell_root.ts --disable-build",
+    "deploy_tip3_root": "npx locklift run --network local --script scripts/3_deploy_tip3_root.ts --disable-build",
+    "deploy_collection": "npx locklift run --network local --script scripts/2_deploy_collection.ts --disable-build",
+    "deploy_wallet": "npx locklift run --network local --script scripts/1_deploy_wallet.ts --disable-build"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/chai": "^4.3.3",
+    "@types/mocha": "^9.1.1",
+    "@types/node": "^18.7.12",
+    "chai": "^4.3.6",
+    "everscale-standalone-client": "^2.0.27",
+    "locklift": "^2.1.10",
+    "prettier": "^2.7.1",
+    "ts-mocha": "^10.0.0",
+    "typescript": "^4.7.4"
+  },
+  "dependencies": {
+    "@broxus/contracts": "github:broxus/ever-contracts",
+    "@itgold/everscale-tip": "^1.1.4",
+    "broxus-ton-tokens-contracts": "github:broxus/tip3",
+    "chalk": "^4.0.1",
+    "fs": "^0.0.1-security",
+    "ora": "^5.1.2",
+    "prompts": "^2.4.2"
+  }
+}

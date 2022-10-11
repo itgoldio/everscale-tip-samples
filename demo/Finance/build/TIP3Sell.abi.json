@@ -1,0 +1,189 @@
+{
+	"ABI version": 2,
+	"version": "2.2",
+	"header": ["pubkey", "time", "expire"],
+	"functions": [
+		{
+			"name": "constructor",
+			"inputs": [
+				{"name":"tip3TokenRoot","type":"address"},
+				{"name":"owner","type":"address"},
+				{"name":"sendGasTo","type":"address"},
+				{"name":"remainOnSell","type":"uint128"},
+				{"name":"price","type":"uint128"},
+				{"name":"deployTIP3WalletValue","type":"uint128"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "onDeployTIP3SellWallet",
+			"inputs": [
+				{"name":"tip3Wallet","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "onDeployTIP3VendorWallet",
+			"inputs": [
+				{"name":"tip3Wallet","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "cancelSell",
+			"inputs": [
+				{"name":"sendGasTo","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "onNftChangeManager",
+			"inputs": [
+				{"name":"id","type":"uint256"},
+				{"name":"owner","type":"address"},
+				{"name":"oldManager","type":"address"},
+				{"name":"newManager","type":"address"},
+				{"name":"collection","type":"address"},
+				{"name":"sendGasTo","type":"address"},
+				{"name":"payload","type":"cell"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "onAcceptTokensTransfer",
+			"inputs": [
+				{"name":"tokenRoot","type":"address"},
+				{"name":"amount","type":"uint128"},
+				{"name":"sender","type":"address"},
+				{"name":"senderWallet","type":"address"},
+				{"name":"remainingGasTo","type":"address"},
+				{"name":"payload","type":"cell"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "onNftTransfer",
+			"inputs": [
+				{"name":"id","type":"uint256"},
+				{"name":"oldOwner","type":"address"},
+				{"name":"newOwner","type":"address"},
+				{"name":"oldManager","type":"address"},
+				{"name":"newManager","type":"address"},
+				{"name":"collection","type":"address"},
+				{"name":"gasReceiver","type":"address"},
+				{"name":"payload","type":"cell"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "getInfo",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"nft","type":"address"},
+				{"name":"tip3TokenRoot","type":"address"},
+				{"name":"tip3SellRoot","type":"address"},
+				{"name":"tip3VendorWallet","type":"address"},
+				{"name":"tip3SellWallet","type":"address"},
+				{"name":"owner","type":"address"},
+				{"name":"sendGasTo","type":"address"},
+				{"name":"remainOnSell","type":"uint128"},
+				{"name":"price","type":"uint128"},
+				{"name":"status","type":"uint8"}
+			]
+		},
+		{
+			"name": "getGasPrice",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"confirmSellPrice","type":"uint128"},
+				{"name":"cancelSellPrice","type":"uint128"},
+				{"name":"transferNftPrice","type":"uint128"},
+				{"name":"processingPrice","type":"uint128"},
+				{"name":"transferTokensPrice","type":"uint128"},
+				{"name":"tokenWalletDestroyPrice","type":"uint128"},
+				{"name":"changeNftManagerPrice","type":"uint128"}
+			]
+		},
+		{
+			"name": "supportsInterface",
+			"inputs": [
+				{"name":"answerId","type":"uint32"},
+				{"name":"interfaceID","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"value0","type":"bool"}
+			]
+		},
+		{
+			"name": "getStatusType",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"value0","type":"uint8"}
+			]
+		}
+	],
+	"data": [
+		{"key":1,"name":"_nft","type":"address"}
+	],
+	"events": [
+		{
+			"name": "ReadyToSell",
+			"inputs": [
+				{"name":"owner","type":"address"},
+				{"name":"price","type":"uint128"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "Cancel",
+			"inputs": [
+				{"name":"owner","type":"address"},
+				{"name":"price","type":"uint128"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "Buy",
+			"inputs": [
+				{"name":"oldOwner","type":"address"},
+				{"name":"newOwner","type":"address"},
+				{"name":"price","type":"uint128"}
+			],
+			"outputs": [
+			]
+		}
+	],
+	"fields": [
+		{"name":"_pubkey","type":"uint256"},
+		{"name":"_timestamp","type":"uint64"},
+		{"name":"_constructorFlag","type":"bool"},
+		{"name":"_checkList","type":"uint8"},
+		{"name":"_status","type":"uint8"},
+		{"name":"_supportedInterfaces","type":"optional(cell)"},
+		{"name":"_nft","type":"address"},
+		{"name":"_tip3TokenRoot","type":"address"},
+		{"name":"_tip3SellRoot","type":"address"},
+		{"name":"_tip3VendorWallet","type":"address"},
+		{"name":"_tip3SellWallet","type":"address"},
+		{"name":"_owner","type":"address"},
+		{"name":"_sendGasTo","type":"address"},
+		{"name":"_remainOnSell","type":"uint128"},
+		{"name":"_price","type":"uint128"},
+		{"name":"_deployTIP3WalletValue","type":"uint128"}
+	]
+}
