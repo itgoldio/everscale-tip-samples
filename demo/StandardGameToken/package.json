@@ -1,0 +1,28 @@
+{
+  "name": "standard-game-token",
+  "version": "1.1.4",
+  "description": "Standard game token demo",
+  "scripts": {
+    "test": "npx locklift test --network local",
+    "1-deploy-collection": "npx locklift run --network local --script scripts/1-deploy-collection.ts",
+    "2-mint-nft": "npx locklift run --network local --script scripts/2-mint-nft.ts --disable-build"
+  },
+  "author": "itgold.io",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/chai": "^4.3.3",
+    "@types/mocha": "^10.0.0",
+    "@types/node": "^18.8.0",
+    "chai": "^4.3.6",
+    "everscale-standalone-client": "^2.1.1",
+    "locklift": "^2.2.3",
+    "prettier": "^2.7.1",
+    "ts-mocha": "^10.0.0",
+    "typescript": "^4.7.4"
+  },
+  "dependencies": {
+    "@itgold/everscale-tip": "^1.1.4",
+    "ora": "^4.0.0",
+    "prompts": "^2.4.2"
+  }
+}
