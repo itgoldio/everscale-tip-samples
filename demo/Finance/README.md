@@ -3,7 +3,10 @@
 
 
 ### <center>How it work</center>
-1. 
+##### <center>Sell</center>
+![](docs/img/sell_pipeline.png)
+##### <center>Buy</center>
+![](docs/img/buy_pipeline.png)
 ---
 ### <center>How to build</center>
 * Setup your `locklift.config.ts`
