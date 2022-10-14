@@ -1,6 +1,12 @@
 # <center>Finance</center>
 #### <center>TIP3 Secondary Market For StandardWebToken Sample</center>
 
+
+### <center>How it work</center>
+##### <center>Sell</center>
+![](docs/img/sell_pipeline.png)
+##### <center>Buy</center>
+![](docs/img/buy_pipeline.png)
 ---
 ### <center>How to build</center>
 * Setup your `locklift.config.ts`
