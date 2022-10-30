@@ -306,7 +306,7 @@ contract TIP3Sell is
         (uint128 gasPrice,,,,,,) = getGasPrice();
         if(
             _isCheckListEmpty() &&
-            _price >= amount &&
+            _price == amount &&
             msg.value >= gasPrice &&
             _tip3TokenRoot == tokenRoot &&
             getStatusType() == StatusType.READY
