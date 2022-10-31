@@ -16,8 +16,9 @@ import {
     TIP3SellRoot,
     TIP3Sell
 } from "./utils";
+import { exit } from "process";
 
-const TIP3_TOKEN_PRICE = 100;
+const TIP3_TOKEN_PRICE = 1;
 const INIT_BUYER_TOKENS = 1000;
 
 let sellMsg: string;
