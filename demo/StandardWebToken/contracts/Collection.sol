@@ -1,4 +1,4 @@
-pragma ton-solidity = 0.58.1;
+pragma ton-solidity >= 0.58.1;
 
 pragma AbiHeader expire;
 pragma AbiHeader time;
@@ -88,7 +88,7 @@ contract Collection is TIP4_2Collection, TIP4_3Collection, OwnableExternal, ITok
     
     }
 
-    function withdraw(address dest, uint128 value) external pure onlyOwner {
+    function withdraw(address dest, uint128 value) external onlyOwner {
         tvm.accept();
         dest.transfer(value, true);
     }
