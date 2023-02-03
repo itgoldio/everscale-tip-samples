@@ -1,0 +1,119 @@
+{
+	"ABI version": 2,
+	"version": "2.2",
+	"header": ["pubkey", "time", "expire"],
+	"functions": [
+		{
+			"name": "constructor",
+			"inputs": [
+				{"name":"vestingPeriod","type":"uint32"},
+				{"name":"vestingRatio","type":"uint32"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "pendingReward",
+			"inputs": [
+				{"name":"accRewardPerShare","type":"uint256"},
+				{"name":"poolLastRewardTime","type":"uint32"},
+				{"name":"farmEndTime","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"entitled","type":"uint128"},
+				{"name":"vested","type":"uint128"},
+				{"name":"poolDebt","type":"uint128"},
+				{"name":"vestingTime","type":"uint32"}
+			]
+		},
+		{
+			"name": "increasePoolDebt",
+			"inputs": [
+				{"name":"poolDebt","type":"uint128"},
+				{"name":"sendGasTo","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "processDeposit",
+			"inputs": [
+				{"name":"depositNonce","type":"uint64"},
+				{"name":"nft","type":"address"},
+				{"name":"accRewardPerShare","type":"uint256"},
+				{"name":"poolLastRewardTime","type":"uint32"},
+				{"name":"farmEndTime","type":"uint32"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "processWithdraw",
+			"inputs": [
+				{"name":"nft","type":"address"},
+				{"name":"accRewardPerShare","type":"uint256"},
+				{"name":"poolLastRewardTime","type":"uint32"},
+				{"name":"farmEndTime","type":"uint32"},
+				{"name":"sendGasTo","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "processClaimReward",
+			"inputs": [
+				{"name":"accRewardPerShare","type":"uint256"},
+				{"name":"poolLastRewardTime","type":"uint32"},
+				{"name":"farmEndTime","type":"uint32"},
+				{"name":"sendGasTo","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "getInfo",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"lastRewardTime","type":"uint32"},
+				{"name":"vestingPeriod","type":"uint32"},
+				{"name":"vestingRatio","type":"uint32"},
+				{"name":"amount","type":"uint128"},
+				{"name":"vestingTime","type":"uint32"},
+				{"name":"rewardDebt","type":"uint128"},
+				{"name":"entitled","type":"uint128"},
+				{"name":"poolDebt","type":"uint128"}
+			]
+		},
+		{
+			"name": "_deposits",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_deposits","type":"address[]"}
+			]
+		}
+	],
+	"data": [
+		{"key":1,"name":"_farmPool","type":"address"},
+		{"key":2,"name":"_user","type":"address"}
+	],
+	"events": [
+	],
+	"fields": [
+		{"name":"_pubkey","type":"uint256"},
+		{"name":"_timestamp","type":"uint64"},
+		{"name":"_constructorFlag","type":"bool"},
+		{"name":"_farmPool","type":"address"},
+		{"name":"_user","type":"address"},
+		{"name":"_lastRewardTime","type":"uint32"},
+		{"name":"_vestingPeriod","type":"uint32"},
+		{"name":"_vestingRatio","type":"uint32"},
+		{"name":"_vestingTime","type":"uint32"},
+		{"name":"_rewardDebt","type":"uint128"},
+		{"name":"_entitled","type":"uint128"},
+		{"name":"_poolDebt","type":"uint128"},
+		{"name":"_deposits","type":"address[]"}
+	]
+}

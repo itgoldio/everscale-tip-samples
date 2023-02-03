@@ -1,18 +1,28 @@
 {
-  "name": "farming",
-  "version": "1.0.1",
+  "name": "nft-farming",
+  "version": "2.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
-    "deploy": "locklift run --config locklift.config.js --network local --script scripts/1-deploy-farming.js"
+    "deploy-collection": "npx locklift run --network rfld --script scripts/3-deploy-collection.ts --disable-build",
+    "deploy-root": "npx locklift run --network rfld --script scripts/2-deploy-token-root.ts --disable-build",
+    "mint-nft": "npx locklift run --network rfld --script scripts/4-mint-nft.ts --disable-build"
   },
-  "keywords": [],
   "author": "",
   "license": "ISC",
+  "devDependencies": {
+    "@types/chai": "^4.3.3",
+    "@types/mocha": "^9.1.1",
+    "@types/node": "^18.7.6",
+    "chai": "^4.3.6",
+    "everscale-standalone-client": "^2.0.27",
+    "locklift": "^2.1.10",
+    "prettier": "^2.7.1",
+    "ts-mocha": "^10.0.0",
+    "typescript": "^4.7.4"
+  },
   "dependencies": {
     "@itgold/everscale-tip": "^1.1.3",
-    "broxus-ton-tokens-contracts": "git+https://github.com/broxus/ton-eth-bridge-token-contracts.git",
-    "locklift": "git+https://github.com/broxus/ton-locklift.git",
-    "prompts": "^2.4.2"
+    "bignumber.js": "^9.1.0",
+    "broxus-ton-tokens-contracts": "git+https://github.com/broxus/tip3.git"
   }
 }
