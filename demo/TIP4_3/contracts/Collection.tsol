@@ -1,13 +1,13 @@
-pragma ton-solidity = 0.58.1;
+pragma ton-solidity >= 0.62.0;
 
 pragma AbiHeader expire;
 pragma AbiHeader time;
 pragma AbiHeader pubkey;
 
 
-import '@itgold/everscale-tip/contracts/TIP4_3/TIP4_3Collection.sol';
-import '@itgold/everscale-tip/contracts/access/OwnableExternal.sol';
-import './Nft.sol';
+import '@itgold/everscale-tip/contracts/TIP4_3/TIP4_3Collection.tsol';
+import '@itgold/everscale-tip/contracts/access/OwnableExternal.tsol';
+import './Nft.tsol';
 
 contract Collection is TIP4_3Collection, OwnableExternal {
 

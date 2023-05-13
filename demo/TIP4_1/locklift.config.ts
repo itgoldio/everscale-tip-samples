@@ -1,10 +1,6 @@
 import { LockliftConfig } from "locklift";
 import { FactorySource } from "./build/factorySource";
 
-import { lockliftChai } from "locklift";
-import chai from "chai";
-chai.use(lockliftChai);
-
 declare global {
   const locklift: import("locklift").Locklift<FactorySource>;
 }
