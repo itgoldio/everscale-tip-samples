@@ -1,4 +1,4 @@
-import { Address, zeroAddress } from 'locklift/.';
+import { Address, zeroAddress, WalletTypes, toNano } from 'locklift/.';
 import ora from 'ora';
 import prompts from 'prompts';
 
@@ -15,7 +15,7 @@ async function main() {
         type: 'text',
         name: 'json',
         message: 'Nft json',
-        initial: ''
+        initial: '{"field": "value"}'
     },
   ]);
   spinner.start(`Mint Nft`);
@@ -25,29 +25,16 @@ async function main() {
       "Collection",
       new Address(response.collectionAddr)
     );
-    const accountsFactory = await locklift.factory.getAccountsFactory(
-      "Wallet",
-    );
-
-    const {account: account, tx} = await accountsFactory.deployNewAccount({
+    const {account} = await locklift.factory.accounts.addNewAccount({
+      type: WalletTypes.EverWallet,
       publicKey: signer.publicKey,
-      initParams: {
-        _randomNonce: locklift.utils.getRandomNonce(),
-      },
-      constructorParams: {},
-      value: locklift.utils.toNano(1)
-    }); 
+      value: toNano(1)
+    });
 
-    await account.runTarget(
-      {
-          contract: collection,
-          value: locklift.utils.toNano(0.5),
-      },
-      collection =>
-      collection.methods.mintNft({    
-          "json": response.json
-      }),
-    );
+    await collection.methods.mintNft({json: response.json}).send({
+      from: account.address,
+      amount: toNano(0.5)
+    });
 
     const nftId = await collection.methods.totalSupply({answerId:0}).call();
     const nftAddr = await collection.methods.nftAddress({answerId:0, id:(Number(nftId.count) - 1).toString()}).call();

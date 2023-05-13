@@ -25,7 +25,6 @@ async function main() {
       publicKey: signer.publicKey,
       value: toNano(1)
     });
-    console.log("test account", account.address.toString());
 
     await collection.methods.mintNft({}).send({
       from: account.address,
