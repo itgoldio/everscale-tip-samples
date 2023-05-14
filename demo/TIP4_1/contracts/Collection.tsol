@@ -1,15 +1,15 @@
-pragma ton-solidity = 0.58.1;
+pragma ton-solidity >= 0.62.0;
 
 pragma AbiHeader expire;
 pragma AbiHeader time;
 pragma AbiHeader pubkey;
 
 
-import '@itgold/everscale-tip/contracts/TIP4_2/TIP4_2Collection.sol';
-import '@itgold/everscale-tip/contracts/access/OwnableExternal.sol';
-import './Nft.sol';
+import '@itgold/everscale-tip/contracts/TIP4_1/TIP4_1Collection.tsol';
+import '@itgold/everscale-tip/contracts/access/OwnableExternal.tsol';
+import './Nft.tsol';
 
-contract Collection is TIP4_2Collection, OwnableExternal {
+contract Collection is TIP4_1Collection, OwnableExternal {
 
     /**
     * Errors
@@ -23,21 +23,16 @@ contract Collection is TIP4_2Collection, OwnableExternal {
 
     constructor(
         TvmCell codeNft, 
-        uint256 ownerPubkey,
-        string json
+        uint256 ownerPubkey
     ) OwnableExternal(
         ownerPubkey
     ) TIP4_1Collection (
         codeNft
-    ) TIP4_2Collection (
-        json
     ) public {
         tvm.accept();
     }
 
-    function mintNft(
-        string json
-    ) external virtual {
+    function mintNft() external virtual {
         require(msg.value > _remainOnNft + 0.1 ton, value_is_less_than_required);
         tvm.rawReserve(0, 4);
 
@@ -53,8 +48,7 @@ contract Collection is TIP4_2Collection, OwnableExternal {
         }(
             msg.sender,
             msg.sender,
-            _remainOnNft,
-            json
+            _remainOnNft
         ); 
 
         emit NftCreated(

@@ -1,4 +1,4 @@
-pragma ton-solidity = 0.58.1;
+pragma ton-solidity >= 0.62.0;
 
 /// @notice Attribute types
 /// ANY - without quotation marks: uint, int, bool

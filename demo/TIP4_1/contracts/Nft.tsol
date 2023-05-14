@@ -1,11 +1,11 @@
-pragma ton-solidity = 0.58.1;
+pragma ton-solidity >= 0.62.0;
 
 pragma AbiHeader expire;
 pragma AbiHeader time;
 pragma AbiHeader pubkey;
 
 
-import '@itgold/everscale-tip/contracts/TIP4_1/TIP4_1Nft.sol';
+import '@itgold/everscale-tip/contracts/TIP4_1/TIP4_1Nft.tsol';
 
 contract Nft is TIP4_1Nft {
 

@@ -1,15 +1,15 @@
-pragma ton-solidity = 0.58.1;
+pragma ton-solidity >= 0.62.0;
 
 pragma AbiHeader expire;
 pragma AbiHeader time;
 pragma AbiHeader pubkey;
 
 
-import '@itgold/everscale-tip/contracts/TIP4_3/TIP4_3Collection.sol';
-import '@itgold/everscale-tip/contracts/access/OwnableExternal.sol';
-import './Nft.sol';
+import '@itgold/everscale-tip/contracts/TIP4_2/TIP4_2Collection.tsol';
+import '@itgold/everscale-tip/contracts/access/OwnableExternal.tsol';
+import './Nft.tsol';
 
-contract Collection is TIP4_3Collection, OwnableExternal {
+contract Collection is TIP4_2Collection, OwnableExternal {
 
     /**
     * Errors
@@ -23,21 +23,21 @@ contract Collection is TIP4_3Collection, OwnableExternal {
 
     constructor(
         TvmCell codeNft, 
-        TvmCell codeIndex,
-        TvmCell codeIndexBasis,
-        uint256 ownerPubkey
-    ) OwnableExternal (
+        uint256 ownerPubkey,
+        string json
+    ) OwnableExternal(
         ownerPubkey
     ) TIP4_1Collection (
         codeNft
-    ) TIP4_3Collection (
-        codeIndex,
-        codeIndexBasis
+    ) TIP4_2Collection (
+        json
     ) public {
         tvm.accept();
     }
 
-    function mintNft() external virtual {
+    function mintNft(
+        string json
+    ) external virtual {
         require(msg.value > _remainOnNft + 0.1 ton, value_is_less_than_required);
         tvm.rawReserve(0, 4);
 
@@ -54,9 +54,7 @@ contract Collection is TIP4_3Collection, OwnableExternal {
             msg.sender,
             msg.sender,
             _remainOnNft,
-            _indexDeployValue,
-            _indexDestroyValue,
-            _codeIndex
+            json
         ); 
 
         emit NftCreated(
@@ -69,7 +67,8 @@ contract Collection is TIP4_3Collection, OwnableExternal {
     
     }
 
-    function setRemainOnNft(uint128 remainOnNft) external virtual onlyOwner {
+    function setRemainOnNft(uint128 remainOnNft) external virtual {
+        require(TIP4_1Collection._isOwner(), sender_is_not_owner);
         _remainOnNft = remainOnNft;
     } 
 

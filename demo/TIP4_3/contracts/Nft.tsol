@@ -1,25 +1,21 @@
 // ItGold.io Contracts (v1.0.0) 
 
-pragma ton-solidity >= 0.58.1;
+pragma ton-solidity >= 0.62.0;
 
 pragma AbiHeader expire;
 pragma AbiHeader time;
 pragma AbiHeader pubkey;
 
 
-import '@itgold/everscale-tip/contracts/TIP4_1/TIP4_1Nft.sol';
-import '@itgold/everscale-tip/contracts/TIP4_2/TIP4_2Nft.sol';
-import '@itgold/everscale-tip/contracts/TIP4_3/TIP4_3Nft.sol';
-import './interfaces/ITokenBurned.sol';
+import '@itgold/everscale-tip/contracts/TIP4_1/TIP4_1Nft.tsol';
+import '@itgold/everscale-tip/contracts/TIP4_3/TIP4_3Nft.tsol';
 
-
-contract Nft is TIP4_1Nft, TIP4_2Nft, TIP4_3Nft {
+contract Nft is TIP4_1Nft, TIP4_3Nft {
 
     constructor(
         address owner,
         address sendGasTo,
         uint128 remainOnNft,
-        string json,
         uint128 indexDeployValue,
         uint128 indexDestroyValue,
         TvmCell codeIndex
@@ -27,8 +23,6 @@ contract Nft is TIP4_1Nft, TIP4_2Nft, TIP4_3Nft {
         owner,
         sendGasTo,
         remainOnNft
-    ) TIP4_2Nft (
-        json
     ) TIP4_3Nft (
         indexDeployValue,
         indexDestroyValue,
@@ -53,6 +47,7 @@ contract Nft is TIP4_1Nft, TIP4_2Nft, TIP4_3Nft {
         TIP4_3Nft._afterTransfer(to, sendGasTo, callbacks);
     }   
 
+
     function _beforeChangeOwner(
         address oldOwner, 
         address newOwner,
@@ -69,12 +64,6 @@ contract Nft is TIP4_1Nft, TIP4_2Nft, TIP4_3Nft {
         mapping(address => CallbackParams) callbacks
     ) internal virtual override(TIP4_1Nft, TIP4_3Nft) {
         TIP4_3Nft._afterChangeOwner(oldOwner, newOwner, sendGasTo, callbacks);
-    }
-
-    function burn(address dest) external virtual onlyManager {
-        tvm.accept();
-        ITokenBurned(_collection).onTokenBurned(_id, _owner, _manager);
-        selfdestruct(dest);
     }
 
 }

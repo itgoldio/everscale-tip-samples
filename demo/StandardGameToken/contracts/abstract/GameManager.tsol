@@ -1,4 +1,4 @@
-pragma ton-solidity = 0.58.1;
+pragma ton-solidity >= 0.62.0;
 
 /// @title Abstract contract for manage attribute params
 abstract contract GameManager {
@@ -70,9 +70,9 @@ abstract contract GameManager {
     }
 
     /// @notice Modifier for access to change state of attribute params
-    /// @param metadataAccess Expected value of `_metadataAccess`
-    modifier metadataAccess(bool metadataAccess) virtual {
-        require(_metadataAccess == metadataAccess, 101);
+    /// @param metadataAccess_ Expected value of `_metadataAccess`
+    modifier metadataAccess(bool metadataAccess_) virtual {
+        require(_metadataAccess == metadataAccess_, 101);
         _;
     }
 

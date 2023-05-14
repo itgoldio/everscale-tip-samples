@@ -3,12 +3,13 @@ import prompts from 'prompts';
 
 async function main() {
   const spinner = ora();
+  const signer = (await locklift.keystore.getSigner("0"))!;
   const response = await prompts([
     {
         type: 'text',
         name: 'ownerPubkey',
         message: 'Owner key',
-        initial: ""
+        initial: signer.publicKey
     },
   ]);
   spinner.start(`Deploy Collection`);
@@ -16,7 +17,7 @@ async function main() {
     const Nft = await locklift.factory.getContractArtifacts("Nft");
     const Index = await locklift.factory.getContractArtifacts("Index");
     const IndexBasis = await locklift.factory.getContractArtifacts("IndexBasis");
-    const signer = (await locklift.keystore.getSigner("0"))!;
+    
     const { contract: collection, tx } = await locklift.factory.deployContract({
       contract: "Collection",
       publicKey: signer.publicKey,

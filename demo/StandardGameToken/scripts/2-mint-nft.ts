@@ -1,4 +1,4 @@
-import { Address, zeroAddress } from 'locklift/.';
+import { Address, WalletTypes, toNano, zeroAddress } from 'locklift/.';
 import ora from 'ora';
 import prompts from 'prompts';
 
@@ -47,29 +47,16 @@ async function main() {
       "Collection",
       new Address(response.collectionAddr)
     );
-    const accountsFactory = await locklift.factory.getAccountsFactory(
-      "Wallet",
-    );
-
-    const {account: account, tx} = await accountsFactory.deployNewAccount({
+    const {account} = await locklift.factory.accounts.addNewAccount({
+      type: WalletTypes.EverWallet,
       publicKey: signer.publicKey,
-      initParams: {
-        _randomNonce: locklift.utils.getRandomNonce(),
-      },
-      constructorParams: {},
-      value: locklift.utils.toNano(2)
-    }); 
+      value: toNano(3)
+    });
 
-    await account.runTarget(
-      {
-        contract: collection,
-        value: locklift.utils.toNano(1),
-      },
-      collection =>
-      collection.methods.mintNft({
-        json: JSON.stringify(json)
-      }),
-    );
+    const r = await collection.methods.mintNft({json: JSON.stringify(json)}).send({
+      from: account.address,
+      amount: toNano(2)
+    });
 
     const nftId = await collection.methods.totalSupply({answerId:0}).call();
     const nftAddr = await collection.methods.nftAddress({answerId:0, id:(Number(nftId.count) - 1).toString()}).call();
@@ -79,35 +66,24 @@ async function main() {
       new Address(nftAddr.nft.toString())
     );
 
-    await account.runTarget(
-      {
-        contract: nft,
-        value: locklift.utils.toNano(0.2),
-      },
-      nft =>
-      nft.methods.setPoints({
-        points: response.points
-      }),
-    );
+    const nftJsonBefore = await nft.methods.getJson({answerId:0}).call();
+    console.log(`Nft JSON before set attributes: ${nftJsonBefore.json.toString()}`);
 
-    await account.runTarget(
-      {
-        contract: nft,
-        value: locklift.utils.toNano(0.2),
-      },
-      nft =>
-      nft.methods.setRarity({
-        rarity: response.rarity
-      }),
-    );
+    await nft.methods.setPoints({
+      points: response.points
+    }).send({from: account.address, amount: toNano(0.2)});
 
-    const nftJson = await nft.methods.getJson({answerId:0}).call();
+    await nft.methods.setRarity({
+      rarity: response.rarity
+    }).send({from: account.address, amount: toNano(0.1)});
+
+    const nftJsonAfter = await nft.methods.getJson({answerId:0}).call();
 
     spinner.succeed(`Mint Nft`);
     console.log(`Nft minted at: ${nftAddr.nft.toString()}`);
     console.log(`Set Points to: ${response.points.toString()}`);
     console.log(`Set Rarity to: ${response.rarity.toString()}`);
-    console.log(`Nft JSON: ${nftJson.json.toString()}`);
+    console.log(`Nft JSON after set attributes: ${nftJsonAfter.json.toString()}`);
   }
   catch(err) {
     spinner.fail(`Failed`);

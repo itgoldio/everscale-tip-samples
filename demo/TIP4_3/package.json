@@ -15,13 +15,13 @@
     "@types/node": "^18.7.23",
     "chai": "^4.3.6",
     "everscale-standalone-client": "^2.1.1",
-    "locklift": "^2.2.3",
+    "locklift": "^2.5.5",
     "prettier": "^2.7.1",
     "ts-mocha": "^10.0.0",
     "typescript": "^4.7.4"
   },
   "dependencies": {
-    "@itgold/everscale-tip": "^1.1.4",
+    "@itgold/everscale-tip": "file:../../../everscale-tip",
     "ora": "^4.0.0",
     "prompts": "^2.4.2"
   }
